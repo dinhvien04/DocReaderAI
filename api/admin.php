@@ -43,6 +43,10 @@ try {
             handleDeleteUser($userModel, $input);
             break;
             
+        case 'toggle-status':
+            handleToggleStatus($userModel, $input);
+            break;
+            
         case 'stats':
             handleGetStats($userModel, $dataModel);
             break;
@@ -299,6 +303,70 @@ function handleGetConfigs($configModel) {
         'success' => true,
         'data' => [
             'configs' => $configs
+        ]
+    ]);
+}
+
+/**
+ * Handle toggle user status (active/inactive)
+ */
+function handleToggleStatus($userModel, $input) {
+    // Validate input
+    if (!isset($input['userId'])) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'User ID không hợp lệ',
+            'code' => 'VALIDATION_ERROR'
+        ]);
+        return;
+    }
+    
+    $userId = (int)$input['userId'];
+    
+    // Prevent self-locking
+    if ($userId === $_SESSION['user_id']) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Không thể khóa tài khoản của chính mình',
+            'code' => 'SELF_LOCK'
+        ]);
+        return;
+    }
+    
+    // Get current user status
+    $user = $userModel->getUserById($userId);
+    if (!$user) {
+        http_response_code(404);
+        echo json_encode([
+            'success' => false,
+            'error' => 'User không tồn tại',
+            'code' => 'USER_NOT_FOUND'
+        ]);
+        return;
+    }
+    
+    // Toggle status
+    $newStatus = $user['status'] === 'active' ? 'inactive' : 'active';
+    
+    if (!$userModel->updateStatus($user['email'], $newStatus)) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Không thể cập nhật trạng thái',
+            'code' => 'UPDATE_FAILED'
+        ]);
+        return;
+    }
+    
+    $message = $newStatus === 'inactive' ? 'Đã khóa tài khoản' : 'Đã mở khóa tài khoản';
+    
+    echo json_encode([
+        'success' => true,
+        'message' => $message,
+        'data' => [
+            'newStatus' => $newStatus
         ]
     ]);
 }

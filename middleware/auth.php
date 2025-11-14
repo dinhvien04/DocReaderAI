@@ -4,6 +4,9 @@
  * Check if user is logged in and set current user
  */
 
+// Load config
+require_once __DIR__ . '/../config/config.php';
+
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

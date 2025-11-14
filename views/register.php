@@ -1,5 +1,20 @@
 <?php
 $pageTitle = 'Đăng ký - DocReader AI Studio';
+
+// Start session to check if user is already logged in
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// If user is already logged in, redirect based on role
+if (isset($_SESSION['user_id']) && isset($_SESSION['user'])) {
+    $redirectUrl = $_SESSION['user']['role'] === 'admin' 
+        ? '/KK/views/admin' 
+        : '/KK/dashboard';
+    header('Location: ' . $redirectUrl);
+    exit;
+}
+
 require_once __DIR__ . '/../includes/header.php';
 ?>
 

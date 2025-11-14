@@ -28,6 +28,17 @@ try {
             $userId = requireAuth();
             handleGetHistory($dataModel, $userId);
             break;
+        
+        case 'list':
+            $userId = requireAuth();
+            handleGetList($dataModel, $userId);
+            break;
+        
+        case 'get':
+            $userId = requireAuth();
+            $audioId = $_GET['id'] ?? 0;
+            handleGetFile($dataModel, $userId, $audioId);
+            break;
             
         case 'upload':
             $userId = requireAuth();
@@ -72,9 +83,128 @@ function handleGetHistory($dataModel, $userId) {
     
     $result = $dataModel->getAudioByUserIdPaginated($userId, (int)$page, (int)$limit);
     
+    // Format for recent activity table
+    $history = [];
+    if (isset($result['audios'])) {  // Changed from 'data' to 'audios'
+        foreach ($result['audios'] as $audio) {
+            // Generate filename from id and voice
+            $filename = 'audio_' . $audio['id'] . '_' . $audio['voice'] . '.mp3';
+            
+            // Estimate duration based on text length (rough: 150 words per minute)
+            $wordCount = str_word_count($audio['text']);
+            $minutes = floor($wordCount / 150);
+            $seconds = floor(($wordCount % 150) / 2.5);
+            $duration = sprintf('%02d:%02d', $minutes, $seconds);
+            
+            $history[] = [
+                'id' => $audio['id'],
+                'filename' => $filename,
+                'text' => $audio['text'],  // Include text
+                'voice' => $audio['voice'],  // Include voice
+                'lang' => $audio['lang'],  // Include language
+                'position' => $audio['position'],  // Include saved position
+                'created_at' => $audio['created_at'],
+                'duration' => $duration,
+                'file_path' => $audio['audio_url']  // Use audio_url as file_path
+            ];
+        }
+    }
+    
     echo json_encode([
         'success' => true,
-        'data' => $result
+        'data' => [
+            'history' => $history,
+            'total' => $result['total'] ?? 0,
+            'page' => $result['current_page'] ?? 1
+        ]
+    ]);
+}
+
+/**
+ * Handle get file list (for recent files card)
+ */
+function handleGetList($dataModel, $userId) {
+    $limit = $_GET['limit'] ?? 3;
+    
+    $result = $dataModel->getAudioByUserIdPaginated($userId, 1, (int)$limit);
+    
+    // Format for file list
+    $files = [];
+    if (isset($result['audios'])) {  // Changed from 'data' to 'audios'
+        foreach ($result['audios'] as $audio) {
+            // Generate filename from id and voice
+            $filename = 'audio_' . $audio['id'] . '_' . $audio['voice'] . '.mp3';
+            
+            // Estimate duration based on text length
+            $wordCount = str_word_count($audio['text']);
+            $minutes = floor($wordCount / 150);
+            $seconds = floor(($wordCount % 150) / 2.5);
+            $duration = sprintf('%02d:%02d', $minutes, $seconds);
+            
+            $files[] = [
+                'id' => $audio['id'],
+                'filename' => $filename,
+                'created_at' => $audio['created_at'],
+                'duration' => $duration
+            ];
+        }
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'files' => $files
+        ]
+    ]);
+}
+
+/**
+ * Handle get single file
+ */
+function handleGetFile($dataModel, $userId, $audioId) {
+    if (!$audioId) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Audio ID không hợp lệ',
+            'code' => 'INVALID_ID'
+        ]);
+        return;
+    }
+    
+    // Check ownership
+    if (!$dataModel->checkOwnership($audioId, $userId)) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Bạn không có quyền truy cập audio này',
+            'code' => 'FORBIDDEN'
+        ]);
+        return;
+    }
+    
+    // Get audio data
+    $audio = $dataModel->getAudioById($audioId);
+    
+    if (!$audio) {
+        http_response_code(404);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Không tìm thấy audio',
+            'code' => 'NOT_FOUND'
+        ]);
+        return;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'id' => $audio['id'],
+            'filename' => $audio['filename'] ?? 'audio_' . $audio['id'] . '.mp3',
+            'file_path' => $audio['file_path'] ?? '',
+            'duration' => $audio['duration'] ?? '00:00',
+            'created_at' => $audio['created_at']
+        ]
     ]);
 }
 

@@ -58,15 +58,15 @@ CREATE TABLE IF NOT EXISTS system_config (
 
 -- Insert default system configurations
 INSERT INTO system_config (config_key, config_value, description, category, is_public) VALUES
-('max_file_size', '10485760', 'Maximum upload file size in bytes (10MB)', 'limits', true),
-('max_text_length', '5000', 'Maximum text length for TTS conversion', 'limits', true),
-('otp_expiry_minutes', '10', 'OTP expiration time in minutes', 'security', false),
-('max_audio_history', '100', 'Maximum audio history records per user', 'limits', true),
-('tts_default_speed', '1', 'Default TTS speed (0.5 to 2.0)', 'features', true),
-('enable_translation', '1', 'Enable translation feature (0 or 1)', 'features', true),
-('enable_summarization', '1', 'Enable summarization feature (0 or 1)', 'features', true),
-('session_timeout', '1800', 'Session timeout in seconds (30 minutes)', 'security', false)
-ON DUPLICATE KEY UPDATE config_value=VALUES(config_value);
+('max_file_size', '10485760', 'Kích thước file tối đa (10MB = 10485760 bytes)', 'limits', true),
+('max_text_length', '5000', 'Độ dài văn bản tối đa cho chuyển đổi giọng nói', 'limits', true),
+('otp_expiry_minutes', '10', 'Thời gian hết hạn OTP (phút)', 'security', false),
+('max_audio_history', '100', 'Số lượng lịch sử audio tối đa mỗi người dùng', 'limits', true),
+('tts_default_speed', '1', 'Tốc độ đọc mặc định (0.5 = chậm, 1 = bình thường, 2 = nhanh)', 'features', true),
+('enable_translation', '1', 'Bật tính năng dịch thuật (0 = tắt, 1 = bật)', 'features', true),
+('enable_summarization', '1', 'Bật tính năng tóm tắt (0 = tắt, 1 = bật)', 'features', true),
+('session_timeout', '1800', 'Thời gian hết phiên đăng nhập (giây) - 1800 = 30 phút', 'security', false)
+ON DUPLICATE KEY UPDATE description=VALUES(description);
 
 -- Create default admin user (password: admin123)
 -- Password hash for 'admin123' using bcrypt

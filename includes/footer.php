@@ -54,11 +54,11 @@
     </script>
     
     <!-- Application Scripts -->
-    <script src="<?= BASE_URL ?>/assets/js/app.js"></script>
-    <script src="<?= BASE_URL ?>/assets/js/auth.js"></script>
-    <script src="<?= BASE_URL ?>/assets/js/tts.js"></script>
-    <script src="<?= BASE_URL ?>/assets/js/document.js"></script>
-    <script src="<?= BASE_URL ?>/assets/js/admin.js"></script>
+    <script src="<?= BASE_URL ?>/assets/js/app.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>/assets/js/auth.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>/assets/js/tts.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>/assets/js/document.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>/assets/js/admin.js?v=<?= time() ?>"></script>
     
     <!-- Mobile Menu Toggle -->
     <script>

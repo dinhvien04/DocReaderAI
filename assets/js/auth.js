@@ -20,8 +20,32 @@ async function login(identifier, password) {
             storeSession(response.data.user);
             showToast('Đăng nhập thành công', 'success');
             
-            // Redirect to dashboard
-            const redirectUrl = getQueryParam('redirect') || `${API_BASE.replace('/api', '')}/dashboard`;
+            // Redirect based on user role
+            const user = response.data.user;
+            console.log('User data:', user);
+            console.log('User role:', user.role);
+            
+            let redirectUrl;
+            
+            if (user.role === 'admin') {
+                // Admin goes to admin panel
+                redirectUrl = `${API_BASE.replace('/api', '')}/views/admin`;
+                console.log('Admin detected, redirecting to:', redirectUrl);
+            } else {
+                // Regular user goes to dashboard
+                redirectUrl = `${API_BASE.replace('/api', '')}/dashboard`;
+                console.log('Regular user, redirecting to:', redirectUrl);
+            }
+            
+            // Check if there's a custom redirect parameter
+            const customRedirect = getQueryParam('redirect');
+            if (customRedirect) {
+                redirectUrl = customRedirect;
+                console.log('Custom redirect:', redirectUrl);
+            }
+            
+            console.log('Final redirect URL:', redirectUrl);
+            
             setTimeout(() => {
                 window.location.href = redirectUrl;
             }, 500);

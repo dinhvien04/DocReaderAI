@@ -60,7 +60,7 @@ require_once __DIR__ . '/../includes/functions.php';
                 <!-- Logo -->
                 <a href="<?= BASE_URL ?>/" class="flex items-center space-x-2">
                     <div class="text-white text-2xl font-bold">
-                        🎙️ DocReader AI
+                        🎙️ DocReader AI Studio
                     </div>
                 </a>
                 

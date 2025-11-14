@@ -190,7 +190,7 @@ class Data {
             $audios = $stmt->fetchAll();
             
             return [
-                'audios' => $audios,
+                'audios' => $audios,  // Consistent key name
                 'total' => $total,
                 'pages' => ceil($total / $limit),
                 'current_page' => $page

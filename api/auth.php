@@ -97,11 +97,18 @@ function handleLogin($userModel, $input) {
     
     // Check if account is active
     if ($user['status'] !== 'active') {
+        // Check if account has OTP (means it's pending activation)
+        $isPendingActivation = !empty($user['otp']);
+        
+        $errorMessage = $isPendingActivation 
+            ? 'Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác thực OTP.'
+            : 'Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.';
+        
         http_response_code(403);
         echo json_encode([
             'success' => false,
-            'error' => 'Tài khoản chưa được kích hoạt',
-            'code' => 'INACTIVE_ACCOUNT'
+            'error' => $errorMessage,
+            'code' => $isPendingActivation ? 'PENDING_ACTIVATION' : 'ACCOUNT_LOCKED'
         ]);
         return;
     }
