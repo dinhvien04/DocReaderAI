@@ -115,8 +115,8 @@ require_once __DIR__ . '/../includes/functions.php';
 
         <!-- User Profile Section -->
         <div class="p-6 border-t border-gray-200">
-            <div class="mb-3 p-3 rounded-xl bg-gray-50">
-                <div class="flex items-center space-x-3 mb-3">
+            <div class="mb-3 p-3 rounded-xl bg-gray-50 relative">
+                <button onclick="toggleUserMenu()" class="flex items-center space-x-3 w-full text-left hover:bg-gray-100 rounded-lg p-2 transition">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                         <?= strtoupper(substr($currentUser['email'], 0, 1)) ?>
                     </div>
@@ -126,6 +126,25 @@ require_once __DIR__ . '/../includes/functions.php';
                         </div>
                         <div class="text-xs text-gray-500">DocReader AI Studio</div>
                     </div>
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div id="user-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
+                    <a href="<?= BASE_URL ?>/profile" class="flex items-center px-4 py-3 hover:bg-gray-50 transition">
+                        <svg class="w-5 h-5 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span class="text-gray-700 font-medium">Thông tin cá nhân</span>
+                    </a>
+                    <a href="<?= BASE_URL ?>/change-password" class="flex items-center px-4 py-3 hover:bg-gray-50 transition border-t border-gray-100">
+                        <svg class="w-5 h-5 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        <span class="text-gray-700 font-medium">Đổi mật khẩu</span>
+                    </a>
                 </div>
             </div>
             <button onclick="logout()" class="w-full py-3 px-4 text-white bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:from-red-600 hover:to-red-700 font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
@@ -287,8 +306,8 @@ require_once __DIR__ . '/../includes/functions.php';
 
                     <!-- History Tab -->
                     <div id="content-history" class="tab-content hidden">
-                        <h2 class="text-2xl font-bold mb-6">📊 Lịch sử tạo âm thanh</h2>
-                        <p class="text-gray-600 mb-4">0 của 0 hàng đã chọn</p>
+                        <h2 class="text-2xl font-bold mb-6">Lịch sử tạo âm thanh</h2>
+                        <!-- <p class="text-gray-600 mb-4">0 của 0 hàng đã chọn</p> -->
                         <div class="overflow-x-auto">
                             <table class="w-full border-collapse">
                                 <thead class="bg-gray-100">
@@ -366,19 +385,19 @@ function switchTab(tabName) {
     }
 }
 
-function toggleUserPopup() {
+function toggleUserMenu() {
     event.stopPropagation();
-    const popup = document.getElementById('user-popup');
-    popup.classList.toggle('hidden');
+    const menu = document.getElementById('user-menu');
+    menu.classList.toggle('hidden');
 }
 
-// Close popup when clicking outside
+// Close menu when clicking outside
 document.addEventListener('click', function(event) {
-    const popup = document.getElementById('user-popup');
-    const userSection = event.target.closest('[onclick="toggleUserPopup()"]');
+    const menu = document.getElementById('user-menu');
+    const userButton = event.target.closest('[onclick="toggleUserMenu()"]');
     
-    if (!userSection && popup && !popup.classList.contains('hidden')) {
-        popup.classList.add('hidden');
+    if (!userButton && menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
     }
 });
 

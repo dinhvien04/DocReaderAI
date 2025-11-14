@@ -191,9 +191,9 @@
                     <p class="text-sm text-gray-600">© 2024 DocReader AI Studio. All rights reserved.</p>
                 </div>
                 <div class="flex items-center gap-6 text-sm text-gray-600">
-                    <a href="#" class="hover:text-blue-600 transition-colors">Về chúng tôi</a>
-                    <a href="#" class="hover:text-blue-600 transition-colors">Điều khoản dịch vụ</a>
-                    <a href="#" class="hover:text-blue-600 transition-colors">Chính sách bảo mật</a>
+                    <a href="./about" class="hover:text-blue-600 transition-colors">Về chúng tôi</a>
+                    <a href="./terms" class="hover:text-blue-600 transition-colors">Điều khoản dịch vụ</a>
+                    <a href="./privacy" class="hover:text-blue-600 transition-colors">Chính sách bảo mật</a>
                 </div>
             </div>
         </div>

@@ -7,9 +7,9 @@ Hệ thống chuyển đổi văn bản thành giọng nói với AI, hỗ trợ
 - 🎙️ **Text-to-Speech**: Azure Speech Service với giọng đọc Neural chất lượng cao
   - 2 giọng Tiếng Việt: Hoài My (Nữ), Nam Minh (Nam)
   - 4 giọng Tiếng Anh: Jenny, Guy, Aria, Davis
-- 📄 **Xử lý tài liệu**: Upload và đọc file PDF, TXT
-- 🌐 **Dịch thuật**: Hỗ trợ 5 ngôn ngữ (EN, VI, JA, KO, ZH)
-- 📝 **Tóm tắt văn bản**: AI thông minh với Google Gemini
+- 📄 **Xử lý tài liệu**: Upload và đọc file PDF, TXT, DOC, DOCX
+- 🌐 **Dịch thuật**: Hỗ trợ 8 ngôn ngữ (EN, VI, JA, KO, ZH, FR, DE, ES)
+- 📝 **Tóm tắt văn bản**: AI thông minh với MegaLLM API
 - 📊 **Quản lý lịch sử**: Lưu trữ và tiếp tục phát từ vị trí đã dừng
 - 👥 **Admin Dashboard**: Quản lý users và cấu hình hệ thống
 
@@ -71,8 +71,10 @@ AZURE_SPEECH_KEY=your_azure_speech_key
 AZURE_SPEECH_KEY2=your_azure_speech_key2
 AZURE_SPEECH_REGION=eastus
 
-# Google API
-GOOGLE_API_KEY=your_google_key
+# MegaLLM API (Required for translation & summarization)
+MEGALLM_API_KEY=your_megallm_api_key
+MEGALLM_BASE_URL=https://ai.megallm.io/v1
+MEGALLM_MODEL=gpt-5
 
 # Email
 SMTP_HOST=smtp.gmail.com
@@ -90,9 +92,10 @@ SMTP_PASS=your_app_password
 4. Free tier: 5 triệu ký tự/tháng
 5. Recommended regions: eastus, southeastasia, eastasia
 
-**Google Gemini:**
-1. Truy cập: https://makersuite.google.com/app/apikey
-2. Tạo API key
+**MegaLLM API (Required):**
+1. Truy cập: https://ai.megallm.io/
+2. Đăng ký tài khoản và lấy API key
+3. Hỗ trợ OpenAI-compatible API format
 
 ### 5. Set permissions
 

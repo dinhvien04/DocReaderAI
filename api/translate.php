@@ -9,11 +9,11 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../services/GoogleApiService.php';
+require_once __DIR__ . '/../services/MegaLLMService.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-// Initialize Google API service
-$googleService = new GoogleApiService($_ENV['GOOGLE_API_KEY']);
+// Initialize MegaLLM API service
+$megaLLM = new MegaLLMService();
 
 // Get action from query parameter
 $action = $_GET['action'] ?? '';
@@ -25,17 +25,17 @@ try {
     switch ($action) {
         case 'translate':
             $userId = requireAuth();
-            handleTranslate($googleService, $input);
+            handleTranslate($megaLLM, $input);
             break;
             
         case 'summary':
             $userId = requireAuth();
-            handleSummarize($googleService, $input);
+            handleSummarize($megaLLM, $input);
             break;
             
         case 'detect':
             $userId = requireAuth();
-            handleDetectLanguage($googleService, $input);
+            handleDetectLanguage($megaLLM, $input);
             break;
             
         default:
@@ -59,7 +59,7 @@ try {
 /**
  * Handle text translation
  */
-function handleTranslate($googleService, $input) {
+function handleTranslate($megaLLM, $input) {
     // Validate input
     if (empty($input['text']) || empty($input['targetLang'])) {
         http_response_code(400);
@@ -75,7 +75,7 @@ function handleTranslate($googleService, $input) {
     $targetLang = $input['targetLang'];
     
     // Validate target language
-    $allowedLanguages = ['en', 'vi', 'ja', 'ko', 'zh', 'zh-CN', 'zh-TW'];
+    $allowedLanguages = ['en', 'vi', 'ja', 'ko', 'zh', 'fr', 'de', 'es'];
     if (!in_array($targetLang, $allowedLanguages)) {
         http_response_code(400);
         echo json_encode([
@@ -86,35 +86,32 @@ function handleTranslate($googleService, $input) {
         return;
     }
     
-    // Call Google Translate API
-    $result = $googleService->translateText($text, $targetLang);
-    
-    if (!$result['success']) {
+    try {
+        // Call MegaLLM API
+        $translatedText = $megaLLM->translate($text, $targetLang);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Dịch thành công',
+            'data' => [
+                'translated_text' => $translatedText,
+                'target_language' => $targetLang
+            ]
+        ]);
+    } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'error' => 'Không thể dịch văn bản',
-            'code' => 'TRANSLATION_FAILED',
-            'details' => $result['error']
+            'error' => 'Không thể dịch văn bản: ' . $e->getMessage(),
+            'code' => 'TRANSLATION_FAILED'
         ]);
-        return;
     }
-    
-    echo json_encode([
-        'success' => true,
-        'message' => 'Dịch thành công',
-        'data' => [
-            'translated_text' => $result['translated_text'],
-            'detected_language' => $result['detected_language'] ?? 'unknown',
-            'target_language' => $targetLang
-        ]
-    ]);
 }
 
 /**
  * Handle text summarization
  */
-function handleSummarize($googleService, $input) {
+function handleSummarize($megaLLM, $input) {
     // Validate input
     if (empty($input['text'])) {
         http_response_code(400);
@@ -127,7 +124,6 @@ function handleSummarize($googleService, $input) {
     }
     
     $text = $input['text'];
-    $prompt = $input['prompt'] ?? '';
     
     // Validate text length
     if (strlen($text) < 100) {
@@ -140,33 +136,31 @@ function handleSummarize($googleService, $input) {
         return;
     }
     
-    // Call Google AI API
-    $result = $googleService->summarizeText($text, $prompt);
-    
-    if (!$result['success']) {
+    try {
+        // Call MegaLLM API
+        $summary = $megaLLM->summarize($text, 'vi');
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Tóm tắt thành công',
+            'data' => [
+                'summary' => $summary
+            ]
+        ]);
+    } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'error' => 'Không thể tóm tắt văn bản',
-            'code' => 'SUMMARIZATION_FAILED',
-            'details' => $result['error']
+            'error' => 'Không thể tóm tắt văn bản: ' . $e->getMessage(),
+            'code' => 'SUMMARIZATION_FAILED'
         ]);
-        return;
     }
-    
-    echo json_encode([
-        'success' => true,
-        'message' => 'Tóm tắt thành công',
-        'data' => [
-            'summary' => $result['summary']
-        ]
-    ]);
 }
 
 /**
- * Handle language detection
+ * Handle language detection (not supported by MegaLLM, return default)
  */
-function handleDetectLanguage($googleService, $input) {
+function handleDetectLanguage($megaLLM, $input) {
     // Validate input
     if (empty($input['text'])) {
         http_response_code(400);
@@ -178,28 +172,20 @@ function handleDetectLanguage($googleService, $input) {
         return;
     }
     
+    // Simple language detection based on character set
     $text = $input['text'];
+    $language = 'vi'; // Default to Vietnamese
     
-    // Call Google Translate API
-    $result = $googleService->detectLanguage($text);
-    
-    if (!$result['success']) {
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Không thể nhận diện ngôn ngữ',
-            'code' => 'DETECTION_FAILED',
-            'details' => $result['error']
-        ]);
-        return;
+    if (preg_match('/[a-zA-Z]/', $text) && !preg_match('/[\x{0080}-\x{FFFF}]/u', $text)) {
+        $language = 'en';
     }
     
     echo json_encode([
         'success' => true,
         'message' => 'Nhận diện thành công',
         'data' => [
-            'language' => $result['language'],
-            'confidence' => $result['confidence']
+            'language' => $language,
+            'confidence' => 0.8
         ]
     ]);
 }

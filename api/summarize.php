@@ -5,7 +5,9 @@
  */
 
 header('Content-Type: application/json');
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../services/MegaLLMService.php';
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -29,6 +31,10 @@ $action = $_GET['action'] ?? '';
 switch ($action) {
     case 'summarize':
         handleSummarize();
+        break;
+    
+    case 'summarize-file':
+        handleSummarizeFile();
         break;
     
     default:
@@ -63,14 +69,92 @@ function handleSummarize() {
             throw new Exception('Text is too long (maximum 10000 characters)');
         }
         
-        // Simple summarization algorithm
-        // In production, you would use an AI service like OpenAI, Google AI, etc.
-        $summary = generateSummary($text);
+        // Use MegaLLM API for summarization
+        $megaLLM = new MegaLLMService();
+        $summary = $megaLLM->summarize($text, 'vi');
         
         echo json_encode([
             'success' => true,
             'data' => [
                 'summary' => $summary,
+                'original_length' => strlen($text),
+                'summary_length' => strlen($summary)
+            ]
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    }
+}
+
+/**
+ * Handle file summarization
+ */
+function handleSummarizeFile() {
+    try {
+        // Check if file was uploaded
+        if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+            throw new Exception('No file uploaded or upload error');
+        }
+        
+        $file = $_FILES['file'];
+        $fileName = $file['name'];
+        $fileTmpPath = $file['tmp_name'];
+        $fileSize = $file['size'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        
+        // Validate file type
+        $allowedExtensions = ['txt', 'pdf', 'doc', 'docx'];
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            throw new Exception('Invalid file type. Allowed: TXT, PDF, DOC, DOCX');
+        }
+        
+        // Validate file size (max 10MB)
+        if ($fileSize > 10 * 1024 * 1024) {
+            throw new Exception('File too large (max 10MB)');
+        }
+        
+        // Extract text from file
+        $text = '';
+        
+        if ($fileExtension === 'txt') {
+            $text = file_get_contents($fileTmpPath);
+        } elseif ($fileExtension === 'pdf') {
+            // For PDF, we'll need to use a library or external tool
+            // For now, return error asking user to paste text
+            throw new Exception('PDF file support coming soon. Please copy and paste the text.');
+        } elseif (in_array($fileExtension, ['doc', 'docx'])) {
+            // For DOC/DOCX, we'll need a library
+            throw new Exception('DOC/DOCX file support coming soon. Please copy and paste the text.');
+        }
+        
+        // Validate extracted text
+        if (empty(trim($text))) {
+            throw new Exception('Could not extract text from file');
+        }
+        
+        if (strlen($text) < 100) {
+            throw new Exception('Text is too short to summarize (minimum 100 characters)');
+        }
+        
+        if (strlen($text) > 10000) {
+            // Truncate if too long
+            $text = substr($text, 0, 10000);
+        }
+        
+        // Use MegaLLM API for summarization
+        $megaLLM = new MegaLLMService();
+        $summary = $megaLLM->summarize($text, 'vi');
+        
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'summary' => $summary,
+                'filename' => $fileName,
                 'original_length' => strlen($text),
                 'summary_length' => strlen($summary)
             ]

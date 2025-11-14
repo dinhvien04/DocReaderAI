@@ -41,9 +41,29 @@ switch ($page) {
         include __DIR__ . '/views/reset-password.php';
         break;
     
+    case 'about':
+        include __DIR__ . '/views/about.php';
+        break;
+    
+    case 'terms':
+        include __DIR__ . '/views/terms.php';
+        break;
+    
+    case 'privacy':
+        include __DIR__ . '/views/privacy.php';
+        break;
+    
     // Protected pages (require authentication)
     case 'dashboard':
         include __DIR__ . '/views/dashboard.php';
+        break;
+    
+    case 'profile':
+        include __DIR__ . '/views/profile.php';
+        break;
+    
+    case 'change-password':
+        include __DIR__ . '/views/change-password.php';
         break;
     
     // Admin pages (require admin role)

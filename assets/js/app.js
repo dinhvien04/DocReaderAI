@@ -78,12 +78,19 @@ function setLoading(element, loading) {
     if (!element) return;
 
     if (loading) {
-        element.dataset.originalText = element.innerHTML;
+        // Only save original text if not already saved
+        if (!element.dataset.originalText) {
+            element.dataset.originalText = element.innerHTML;
+        }
         element.disabled = true;
         element.innerHTML = '<span class="spinner"></span> Đang xử lý...';
     } else {
         element.disabled = false;
-        element.innerHTML = element.dataset.originalText || element.innerHTML;
+        // Restore original text and clear the saved value
+        if (element.dataset.originalText) {
+            element.innerHTML = element.dataset.originalText;
+            delete element.dataset.originalText;
+        }
     }
 }
 

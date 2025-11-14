@@ -18,8 +18,9 @@
                     <ul class="space-y-2">
                         <li><a href="<?= BASE_URL ?>/" class="text-gray-400 hover:text-white transition">Trang chủ</a></li>
                         <li><a href="<?= BASE_URL ?>/dashboard" class="text-gray-400 hover:text-white transition">Dashboard</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Về chúng tôi</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Liên hệ</a></li>
+                        <li><a href="<?= BASE_URL ?>/about" class="text-gray-400 hover:text-white transition">Về chúng tôi</a></li>
+                        <li><a href="<?= BASE_URL ?>/terms" class="text-gray-400 hover:text-white transition">Điều khoản dịch vụ</a></li>
+                        <li><a href="<?= BASE_URL ?>/privacy" class="text-gray-400 hover:text-white transition">Chính sách bảo mật</a></li>
                     </ul>
                 </div>
                 
@@ -46,6 +47,7 @@
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- PDF.js Worker -->
@@ -58,6 +60,7 @@
     <script src="<?= BASE_URL ?>/assets/js/auth.js?v=<?= time() ?>"></script>
     <script src="<?= BASE_URL ?>/assets/js/tts.js?v=<?= time() ?>"></script>
     <script src="<?= BASE_URL ?>/assets/js/document.js?v=<?= time() ?>"></script>
+    <script src="<?= BASE_URL ?>/assets/js/dashboard.js?v=<?= time() ?>"></script>
     <script src="<?= BASE_URL ?>/assets/js/admin.js?v=<?= time() ?>"></script>
     
     <!-- Mobile Menu Toggle -->
