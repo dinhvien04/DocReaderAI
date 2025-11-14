@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocReader AI Studio - Chuyển đổi văn bản thành giọng nói AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold">DocReader Studio</h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Tính năng</a>
+                    <a href="#applications" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Ứng dụng</a>
+                    <a href="#cta" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Bắt đầu</a>
+                </nav>
+                <div class="flex items-center gap-2">
+                    <a href="./login" class="px-4 py-2 text-sm font-bold text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                        Đăng nhập
+                    </a>
+                    <a href="./register" class="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
+                        Đăng ký miễn phí
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-20 sm:py-32">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="flex flex-col gap-8 text-center lg:text-left">
+                    <div class="flex flex-col gap-4">
+                        <h1 class="text-4xl lg:text-6xl font-black leading-tight tracking-tighter">
+                            Biến văn bản thành giọng nói tự nhiên và truyền cảm
+                        </h1>
+                        <p class="text-base lg:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0">
+                            Trải nghiệm công nghệ Azure Speech AI tiên tiến để tạo ra âm thanh chất lượng cao cho mọi nhu cầu của bạn.
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-4 items-center lg:items-start">
+                        <div class="flex w-full max-w-lg items-stretch rounded-lg bg-white p-2 shadow-lg border border-gray-200">
+                            <input 
+                                type="text" 
+                                class="flex-1 px-3 py-3 text-base border-none focus:outline-none focus:ring-0 rounded-md" 
+                                placeholder="Nhập văn bản của bạn tại đây để thử..."
+                                readonly
+                            />
+                            <a href="./register" class="px-5 py-3 bg-blue-600 text-white text-sm font-bold rounded-md hover:bg-blue-700 transition-colors">
+                                Thử ngay
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full aspect-[4/3] bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-xl shadow-2xl"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 sm:py-24 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col gap-12">
+                <div class="flex flex-col gap-3 text-center max-w-2xl mx-auto">
+                    <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">Các tính năng vượt trội</h2>
+                    <p class="text-gray-600">Khám phá các công cụ mạnh mẽ giúp bạn tạo ra âm thanh hoàn hảo một cách dễ dàng.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-100 text-blue-600 text-2xl">
+                            🎵
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-lg font-bold">Giọng nói tự nhiên</h3>
+                            <p class="text-sm text-gray-600">Sử dụng Azure AI để tạo ra giọng nói chân thực và biểu cảm như người thật.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-100 text-blue-600 text-2xl">
+                            🌐
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-lg font-bold">Đa ngôn ngữ</h3>
+                            <p class="text-sm text-gray-600">Hỗ trợ Tiếng Việt và Tiếng Anh với giọng đọc Neural chất lượng cao.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-100 text-blue-600 text-2xl">
+                            ⚡
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-lg font-bold">Tùy chỉnh tốc độ</h3>
+                            <p class="text-sm text-gray-600">Dễ dàng điều chỉnh tốc độ giọng nói để phù hợp nhu cầu của bạn.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 transition-all hover:shadow-lg hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-100 text-blue-600 text-2xl">
+                            💾
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-lg font-bold">Tải xuống dễ dàng</h3>
+                            <p class="text-sm text-gray-600">Xuất file âm thanh chất lượng cao ở định dạng MP3 phổ biến.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Applications Section -->
+    <section id="applications" class="py-20 sm:py-24">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col gap-12">
+                <div class="flex flex-col gap-3 text-center max-w-2xl mx-auto">
+                    <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">Ứng dụng cho mọi lĩnh vực</h2>
+                    <p class="text-gray-600">Minh họa cách ứng dụng giúp ích cho người sáng tạo nội dung, nhà giáo dục, doanh nghiệp, và người dùng cá nhân.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="flex flex-col gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow">
+                        <div class="h-48 w-full bg-gradient-to-br from-green-400 to-blue-500"></div>
+                        <div class="p-6 pt-0 flex flex-col gap-2">
+                            <h3 class="text-xl font-bold">Giáo dục & Học tập</h3>
+                            <p class="text-sm text-gray-600">Tạo tài liệu học tập âm thanh, sách nói cho học sinh hoặc học ngoại ngữ với phát âm chuẩn.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow">
+                        <div class="h-48 w-full bg-gradient-to-br from-purple-400 to-pink-500"></div>
+                        <div class="p-6 pt-0 flex flex-col gap-2">
+                            <h3 class="text-xl font-bold">Doanh nghiệp & Marketing</h3>
+                            <p class="text-sm text-gray-600">Thuyết minh video quảng cáo, tạo lời chào tổng đài tự động chuyên nghiệp và hấp dẫn.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow">
+                        <div class="h-48 w-full bg-gradient-to-br from-orange-400 to-red-500"></div>
+                        <div class="p-6 pt-0 flex flex-col gap-2">
+                            <h3 class="text-xl font-bold">Sáng tạo nội dung</h3>
+                            <p class="text-sm text-gray-600">Lồng tiếng cho video YouTube, podcast, hoặc các dự án sáng tạo khác một cách nhanh chóng.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="cta" class="py-20 sm:py-24">
+        <div class="container mx-auto px-4">
+            <div class="bg-blue-600 text-white rounded-xl p-8 sm:p-16 text-center shadow-xl">
+                <div class="max-w-2xl mx-auto flex flex-col gap-8 items-center">
+                    <div class="flex flex-col gap-3">
+                        <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">Sẵn sàng để bắt đầu?</h2>
+                        <p class="opacity-90">Đăng ký tài khoản miễn phí ngay hôm nay và khám phá toàn bộ sức mạnh của giọng nói AI.</p>
+                    </div>
+                    <a href="./register" class="px-8 py-3 bg-white text-blue-600 text-base font-bold rounded-lg hover:scale-105 transition-transform shadow-md">
+                        Tạo tài khoản ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 border-t border-gray-200">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                        🎙️
+                    </div>
+                    <p class="text-sm text-gray-600">© 2024 DocReader AI Studio. All rights reserved.</p>
+                </div>
+                <div class="flex items-center gap-6 text-sm text-gray-600">
+                    <a href="#" class="hover:text-blue-600 transition-colors">Về chúng tôi</a>
+                    <a href="#" class="hover:text-blue-600 transition-colors">Điều khoản dịch vụ</a>
+                    <a href="#" class="hover:text-blue-600 transition-colors">Chính sách bảo mật</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
