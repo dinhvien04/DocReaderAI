@@ -1024,3 +1024,124 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
+
+// Handle file upload for Summarize tab
+document.addEventListener('DOMContentLoaded', function() {
+    const summarizeFileInput = document.getElementById('summarize-file-input');
+    const translateFileInput = document.getElementById('translate-file-input');
+    
+    console.log('[FileUpload] Initializing file upload handlers');
+    console.log('[FileUpload] Summarize input:', summarizeFileInput);
+    console.log('[FileUpload] Translate input:', translateFileInput);
+    
+    if (summarizeFileInput) {
+        summarizeFileInput.addEventListener('change', async function(e) {
+            console.log('[Summarize] File selected');
+            const file = e.target.files[0];
+            if (!file) return;
+
+            console.log('[Summarize] File:', file.name, file.type, file.size);
+
+            const fileType = file.name.split('.').pop().toLowerCase();
+            const textArea = document.getElementById('summarize-text');
+            const fileName = document.getElementById('summarize-file-name');
+
+            if (!['pdf', 'txt', 'doc', 'docx'].includes(fileType)) {
+                showToast('Chỉ chấp nhận file PDF, TXT, DOC, DOCX', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File vượt quá 10MB', 'error');
+                return;
+            }
+
+            try {
+                let text = '';
+
+                if (fileType === 'pdf') {
+                    showToast('Đang đọc file PDF...', 'info');
+                    text = await extractTextFromPDF(file);
+                } else if (fileType === 'txt') {
+                    text = await file.text();
+                } else {
+                    showToast('Định dạng file này chưa được hỗ trợ', 'error');
+                    return;
+                }
+
+                if (textArea) {
+                    textArea.value = text;
+                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                }
+
+                if (fileName) {
+                    fileName.textContent = `Đã tải: ${file.name}`;
+                    fileName.classList.remove('hidden');
+                }
+
+                // Reset file input
+                e.target.value = '';
+
+            } catch (error) {
+                console.error('[Summarize] Process file error:', error);
+                showToast('Không thể đọc file', 'error');
+            }
+        });
+    }
+    
+    if (translateFileInput) {
+        translateFileInput.addEventListener('change', async function(e) {
+            console.log('[Translate] File selected');
+            const file = e.target.files[0];
+            if (!file) return;
+
+            console.log('[Translate] File:', file.name, file.type, file.size);
+
+            const fileType = file.name.split('.').pop().toLowerCase();
+            const textArea = document.getElementById('translate-text');
+            const fileName = document.getElementById('translate-file-name');
+
+            if (!['pdf', 'txt', 'doc', 'docx'].includes(fileType)) {
+                showToast('Chỉ chấp nhận file PDF, TXT, DOC, DOCX', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File vượt quá 10MB', 'error');
+                return;
+            }
+
+            try {
+                let text = '';
+
+                if (fileType === 'pdf') {
+                    showToast('Đang đọc file PDF...', 'info');
+                    text = await extractTextFromPDF(file);
+                } else if (fileType === 'txt') {
+                    text = await file.text();
+                } else {
+                    showToast('Định dạng file này chưa được hỗ trợ', 'error');
+                    return;
+                }
+
+                if (textArea) {
+                    textArea.value = text;
+                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                }
+
+                if (fileName) {
+                    fileName.textContent = `Đã tải: ${file.name}`;
+                    fileName.classList.remove('hidden');
+                }
+
+                // Reset file input
+                e.target.value = '';
+
+            } catch (error) {
+                console.error('[Translate] Process file error:', error);
+                showToast('Không thể đọc file', 'error');
+            }
+        });
+    }
+});

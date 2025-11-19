@@ -240,9 +240,25 @@ require_once __DIR__ . '/../includes/functions.php';
                     <div id="content-summarize" class="tab-content hidden">
                         <h2 class="text-2xl font-bold mb-6">Tóm tắt nội dung</h2>
                         <div class="space-y-6">
+                            <!-- File Upload Section -->
+                            <div class="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4">
+                                <input type="file" id="summarize-file-input" accept=".pdf,.txt,.doc,.docx" class="hidden">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-2xl">📄</span>
+                                        <span class="font-semibold text-gray-700">Upload file để trích xuất văn bản</span>
+                                    </div>
+                                    <button onclick="document.getElementById('summarize-file-input').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                                        Chọn file
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ PDF, TXT, DOCX (tối đa 10MB)</p>
+                                <p id="summarize-file-name" class="text-sm text-green-600 mt-2 hidden"></p>
+                            </div>
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Văn bản</label>
-                                <textarea id="summarize-text" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Dán văn bản cần tóm tắt..."></textarea>
+                                <textarea id="summarize-text" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Dán văn bản cần tóm tắt hoặc upload file..."></textarea>
                             </div>
                             <button id="summarize-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition">
                                 Tóm tắt
@@ -275,9 +291,25 @@ require_once __DIR__ . '/../includes/functions.php';
                     <div id="content-translate" class="tab-content hidden">
                         <h2 class="text-2xl font-bold mb-6">Dịch thuật</h2>
                         <div class="space-y-6">
+                            <!-- File Upload Section -->
+                            <div class="bg-purple-50 border-2 border-dashed border-purple-300 rounded-lg p-4">
+                                <input type="file" id="translate-file-input" accept=".pdf,.txt,.doc,.docx" class="hidden">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-2xl">📄</span>
+                                        <span class="font-semibold text-gray-700">Upload file để trích xuất văn bản</span>
+                                    </div>
+                                    <button onclick="document.getElementById('translate-file-input').click()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                                        Chọn file
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ PDF, TXT, DOCX (tối đa 10MB)</p>
+                                <p id="translate-file-name" class="text-sm text-green-600 mt-2 hidden"></p>
+                            </div>
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Văn bản gốc</label>
-                                <textarea id="translate-text" rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Nhập văn bản cần dịch..."></textarea>
+                                <textarea id="translate-text" rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Nhập văn bản cần dịch hoặc upload file..."></textarea>
                             </div>
                             <div class="flex items-center gap-2">
                                 <select id="source-lang" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
