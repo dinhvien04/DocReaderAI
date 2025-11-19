@@ -310,7 +310,15 @@ class RecentActivity {
         return `
             <tr class="hover:bg-gray-50 border-b">
                 <td class="px-4 py-4">
-                    <div class="text-sm text-gray-900">${escapeHtml(truncateText(activity.text || 'Không có văn bản'))}</div>
+                    <div class="flex items-center gap-2">
+                        <div class="text-sm text-gray-900 cursor-pointer hover:text-blue-600 transition flex-1 view-full-text-btn" data-text="${escapeHtml(activity.text || 'Không có văn bản')}" data-title="Văn bản">${escapeHtml(truncateText(activity.text || 'Không có văn bản'))}</div>
+                        <button class="view-full-text-btn text-blue-500 hover:text-blue-700 text-xs" data-text="${escapeHtml(activity.text || 'Không có văn bản')}" data-title="Văn bản" title="Xem đầy đủ">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
                 </td>
                 <td class="px-4 py-4">
                     <div class="text-sm text-gray-700">${voiceName}</div>
@@ -635,12 +643,30 @@ function renderSummarizeItem(item) {
             </div>
             <div class="space-y-3">
                 <div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Văn bản gốc (${item.original_length} ký tự):</p>
-                    <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${escapeHtml(truncatedOriginal)}</p>
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-gray-700">Văn bản gốc (${item.original_length} ký tự):</p>
+                        <button class="view-full-text-btn text-blue-500 hover:text-blue-700 text-xs font-medium flex items-center gap-1" data-text="${escapeHtml(item.original_text)}" data-title="Văn bản gốc">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Xem đầy đủ
+                        </button>
+                    </div>
+                    <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition view-full-text-btn" data-text="${escapeHtml(item.original_text)}" data-title="Văn bản gốc">${escapeHtml(truncatedOriginal)}</p>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Tóm tắt (${item.summary_length} ký tự):</p>
-                    <p class="text-gray-800 text-sm bg-green-50 p-3 rounded">${escapeHtml(truncatedSummary)}</p>
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-gray-700">Tóm tắt (${item.summary_length} ký tự):</p>
+                        <button class="view-full-text-btn text-blue-500 hover:text-blue-700 text-xs font-medium flex items-center gap-1" data-text="${escapeHtml(item.summary_text)}" data-title="Tóm tắt">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Xem đầy đủ
+                        </button>
+                    </div>
+                    <p class="text-gray-800 text-sm bg-green-50 p-3 rounded cursor-pointer hover:bg-green-100 transition view-full-text-btn" data-text="${escapeHtml(item.summary_text)}" data-title="Tóm tắt">${escapeHtml(truncatedSummary)}</p>
                 </div>
             </div>
         </div>
@@ -698,12 +724,30 @@ function renderTranslateItem(item) {
             </div>
             <div class="space-y-3">
                 <div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Văn bản gốc:</p>
-                    <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${escapeHtml(truncatedOriginal)}</p>
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-gray-700">Văn bản gốc:</p>
+                        <button class="view-full-text-btn text-blue-500 hover:text-blue-700 text-xs font-medium flex items-center gap-1" data-text="${escapeHtml(item.original_text)}" data-title="Văn bản gốc">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Xem đầy đủ
+                        </button>
+                    </div>
+                    <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded cursor-pointer hover:bg-gray-100 transition view-full-text-btn" data-text="${escapeHtml(item.original_text)}" data-title="Văn bản gốc">${escapeHtml(truncatedOriginal)}</p>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Bản dịch:</p>
-                    <p class="text-gray-800 text-sm bg-purple-50 p-3 rounded">${escapeHtml(truncatedTranslated)}</p>
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-sm font-medium text-gray-700">Bản dịch:</p>
+                        <button class="view-full-text-btn text-blue-500 hover:text-blue-700 text-xs font-medium flex items-center gap-1" data-text="${escapeHtml(item.translated_text)}" data-title="Bản dịch">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Xem đầy đủ
+                        </button>
+                    </div>
+                    <p class="text-gray-800 text-sm bg-purple-50 p-3 rounded cursor-pointer hover:bg-purple-100 transition view-full-text-btn" data-text="${escapeHtml(item.translated_text)}" data-title="Bản dịch">${escapeHtml(truncatedTranslated)}</p>
                 </div>
             </div>
         </div>
@@ -858,3 +902,125 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+
+/**
+ * Show full text in modal with copy button
+ */
+window.showFullText = function(text, title) {
+    console.log('[Modal] Opening modal with text length:', text ? text.length : 0);
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    };
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col';
+    modalContent.onclick = function(e) {
+        e.stopPropagation();
+    };
+    
+    // Header
+    const header = document.createElement('div');
+    header.className = 'flex items-center justify-between p-6 border-b';
+    header.innerHTML = `
+        <h3 class="text-xl font-bold text-gray-900">${escapeHtml(title)}</h3>
+        <button class="text-gray-400 hover:text-gray-600 close-modal-btn">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    `;
+    
+    // Body
+    const body = document.createElement('div');
+    body.className = 'p-6 overflow-y-auto flex-1';
+    const textContainer = document.createElement('div');
+    textContainer.className = 'bg-gray-50 p-4 rounded-lg';
+    const pre = document.createElement('pre');
+    pre.className = 'whitespace-pre-wrap text-sm text-gray-800 font-sans';
+    pre.textContent = text;
+    textContainer.appendChild(pre);
+    body.appendChild(textContainer);
+    
+    // Footer
+    const footer = document.createElement('div');
+    footer.className = 'flex items-center justify-end gap-3 p-6 border-t bg-gray-50';
+    footer.innerHTML = `
+        <button class="copy-text-btn flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span>Copy</span>
+        </button>
+        <button class="close-modal-btn px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">
+            Đóng
+        </button>
+    `;
+    
+    // Assemble modal
+    modalContent.appendChild(header);
+    modalContent.appendChild(body);
+    modalContent.appendChild(footer);
+    modal.appendChild(modalContent);
+    
+    // Add event listeners
+    modal.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.onclick = function() {
+            document.body.removeChild(modal);
+        };
+    });
+    
+    footer.querySelector('.copy-text-btn').onclick = async function() {
+        try {
+            await navigator.clipboard.writeText(text);
+            const btn = this;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Đã copy!</span>
+            `;
+            btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            btn.classList.add('bg-green-500');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-green-500');
+                btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            }, 2000);
+        } catch (error) {
+            console.error('Copy failed:', error);
+            showToast('Không thể copy', 'error');
+        }
+    };
+    
+    document.body.appendChild(modal);
+    console.log('[Modal] Modal opened successfully');
+};
+
+
+
+
+// Add event delegation for view full text buttons
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.view-full-text-btn');
+    if (btn) {
+        const text = btn.getAttribute('data-text');
+        const title = btn.getAttribute('data-title');
+        if (text && title) {
+            // Decode HTML entities
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = text;
+            const decodedText = textarea.value;
+            showFullText(decodedText, title);
+        }
+    }
+});

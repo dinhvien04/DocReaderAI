@@ -3,6 +3,7 @@ $pageTitle = 'User Management - Admin';
 require_once __DIR__ . '/../../middleware/admin.php';
 require_once __DIR__ . '/../../includes/header.php';
 ?>
+<link rel="icon" type="image/png" href="<?= BASE_URL ?>/assets/images/vie.png">
 
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-8">

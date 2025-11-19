@@ -17,7 +17,8 @@ require_once __DIR__ . '/../includes/functions.php';
     
     <!-- Toastify CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    
+    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/assets/images/vie.png">
+
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
