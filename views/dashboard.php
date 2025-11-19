@@ -191,13 +191,13 @@ require_once __DIR__ . '/../includes/functions.php';
                 <div class="p-8">
                     <!-- TTS Tab -->
                     <div id="content-tts" class="tab-content">
-                <h2 class="text-2xl font-bold mb-6">🎙️ Chuyển đổi văn bản thành giọng nói</h2>
+                <h2 class="text-2xl font-bold mb-6">Chuyển đổi văn bản thành giọng nói</h2>
                 <div class="space-y-6">
                     <!-- File Upload Section -->
                     <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border-2 border-dashed border-blue-300">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
-                                <span class="text-2xl">📄</span>
+                                <span class="text-2xl"></span>
                                 <span class="font-semibold text-gray-700">Upload file để trích xuất văn bản</span>
                             </div>
                             <button onclick="document.getElementById('tts-file-input').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
@@ -237,7 +237,7 @@ require_once __DIR__ . '/../includes/functions.php';
 
                     <!-- Summarize Tab -->
                     <div id="content-summarize" class="tab-content hidden">
-                        <h2 class="text-2xl font-bold mb-6">📝 Tóm tắt nội dung</h2>
+                        <h2 class="text-2xl font-bold mb-6">Tóm tắt nội dung</h2>
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Văn bản</label>
@@ -260,9 +260,9 @@ require_once __DIR__ . '/../includes/functions.php';
 
                     <!-- Upload Tab -->
                     <div id="content-upload" class="tab-content hidden">
-                        <h2 class="text-2xl font-bold mb-6">📄 Upload tài liệu</h2>
+                        <h2 class="text-2xl font-bold mb-6">Upload tài liệu</h2>
                 <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-purple-500 transition cursor-pointer">
-                    <div class="text-6xl mb-4">📁</div>
+                    <div class="text-6xl mb-4"></div>
                     <p class="text-lg font-medium text-gray-700 mb-2">Kéo thả file vào đây hoặc click để chọn</p>
                     <p class="text-sm text-gray-500">Hỗ trợ PDF, TXT (Tối đa 10MB)</p>
                     <input type="file" id="file-input" accept=".pdf,.txt" class="hidden">
@@ -272,7 +272,7 @@ require_once __DIR__ . '/../includes/functions.php';
 
                     <!-- Translate Tab -->
                     <div id="content-translate" class="tab-content hidden">
-                        <h2 class="text-2xl font-bold mb-6">🌐 Dịch thuật</h2>
+                        <h2 class="text-2xl font-bold mb-6">Dịch thuật</h2>
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Văn bản gốc</label>
@@ -298,7 +298,7 @@ require_once __DIR__ . '/../includes/functions.php';
                                     <p id="translated-text" class="text-gray-800"></p>
                                 </div>
                                 <button onclick="copyToClipboard(document.getElementById('translated-text').textContent)" class="mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium">
-                                    📋 Copy
+                                     Copy
                                 </button>
                             </div>
                         </div>
@@ -306,9 +306,33 @@ require_once __DIR__ . '/../includes/functions.php';
 
                     <!-- History Tab -->
                     <div id="content-history" class="tab-content hidden">
-                        <h2 class="text-2xl font-bold mb-6">Lịch sử tạo âm thanh</h2>
-                        <!-- <p class="text-gray-600 mb-4">0 của 0 hàng đã chọn</p> -->
-                        <div class="overflow-x-auto">
+                        <h2 class="text-2xl font-bold mb-6">Lịch sử hoạt động</h2>
+                        
+                        <!-- Filter Tabs -->
+                        <div class="flex gap-2 mb-6 border-b border-gray-200">
+                            <button onclick="window.filterHistory && window.filterHistory('tts')" id="filter-tts" class="history-filter-tab px-6 py-3 font-medium text-gray-700 border-b-2 border-blue-500 text-blue-600">
+                                Âm thanh
+                            </button>
+                            <button onclick="window.filterHistory && window.filterHistory('summarize')" id="filter-summarize" class="history-filter-tab px-6 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300">
+                                Tóm tắt
+                            </button>
+                            <button onclick="window.filterHistory && window.filterHistory('translate')" id="filter-translate" class="history-filter-tab px-6 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300">
+                                Dịch thuật
+                            </button>
+                        </div>
+                        
+                        <!-- History Items Container (for card view) -->
+                        <div id="history-items-container" class="space-y-4 hidden">
+                            <!-- Items will be dynamically loaded here -->
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div id="history-pagination" class="mt-6 flex justify-center hidden">
+                            <!-- Pagination will be rendered here -->
+                        </div>
+                        
+                        <!-- Table View (default for TTS) -->
+                        <div id="history-table-view" class="overflow-x-auto">
                             <table class="w-full border-collapse">
                                 <thead class="bg-gray-100">
                                     <tr>
@@ -380,8 +404,15 @@ function switchTab(tabName) {
     }
     
     // Load history when switching to history tab
-    if (tabName === 'history' && typeof recentActivity !== 'undefined') {
-        recentActivity.loadActivities();
+    if (tabName === 'history') {
+        console.log('[Tab] Switching to history tab');
+        console.log('[Tab] recentActivity exists:', typeof recentActivity !== 'undefined');
+        if (typeof recentActivity !== 'undefined') {
+            console.log('[Tab] Calling loadActivities...');
+            recentActivity.loadActivities();
+        } else {
+            console.error('[Tab] recentActivity is not defined!');
+        }
     }
 }
 

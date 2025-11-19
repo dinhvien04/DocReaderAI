@@ -32,12 +32,42 @@ function showToast(message, type = 'success') {
 }
 
 /**
+ * Detect browser name and version
+ */
+function detectBrowser() {
+    const ua = navigator.userAgent;
+    let browserName = 'Unknown';
+    
+    if (ua.indexOf('Edg') > -1) {
+        browserName = 'Edge';
+    } else if (ua.indexOf('CocCoc') > -1) {
+        browserName = 'CocCoc';
+    } else if (ua.indexOf('Chrome') > -1) {
+        browserName = 'Chrome';
+    } else if (ua.indexOf('Firefox') > -1) {
+        browserName = 'Firefox';
+    } else if (ua.indexOf('Safari') > -1) {
+        browserName = 'Safari';
+    }
+    
+    return { name: browserName, userAgent: ua };
+}
+
+/**
  * API request wrapper with error handling
  * @param {string} url - API endpoint URL
  * @param {object} options - Fetch options
  * @returns {Promise<object>} Response data
  */
 async function apiRequest(url, options = {}) {
+    const browser = detectBrowser();
+    console.log('[API] Request started', {
+        browser: browser.name,
+        url: url,
+        method: options.method || 'GET',
+        hasBody: !!options.body
+    });
+
     try {
         const defaultOptions = {
             headers: {
@@ -46,24 +76,55 @@ async function apiRequest(url, options = {}) {
             credentials: 'same-origin'
         };
 
-        const response = await fetch(url, {
+        const fetchOptions = {
             ...defaultOptions,
             ...options,
             headers: {
                 ...defaultOptions.headers,
                 ...options.headers
             }
+        };
+
+        console.log('[API] Fetch options:', fetchOptions);
+
+        const response = await fetch(url, fetchOptions);
+
+        console.log('[API] Response received', {
+            status: response.status,
+            statusText: response.statusText,
+            ok: response.ok,
+            headers: Object.fromEntries(response.headers.entries())
         });
 
-        const data = await response.json();
+        // Try to parse JSON
+        let data;
+        try {
+            const text = await response.text();
+            console.log('[API] Response text:', text.substring(0, 200));
+            data = JSON.parse(text);
+            console.log('[API] Parsed JSON:', data);
+        } catch (parseError) {
+            console.error('[API] JSON parse error:', parseError);
+            throw new Error('Không thể parse JSON response');
+        }
 
         if (!response.ok) {
+            console.error('[API] Request failed', {
+                status: response.status,
+                error: data.error,
+                data: data
+            });
             throw new Error(data.error || 'Request failed');
         }
 
+        console.log('[API] Request successful');
         return data;
     } catch (error) {
-        console.error('API Request Error:', error);
+        console.error('[API] Request error:', {
+            message: error.message,
+            stack: error.stack,
+            browser: browser.name
+        });
         showToast(error.message, 'error');
         throw error;
     }
@@ -179,6 +240,15 @@ function toggleElement(element, show) {
 
 // Initialize app on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Log browser information
+    const browser = detectBrowser();
+    console.log('='.repeat(60));
+    console.log('[APP] Application initialized');
+    console.log('[APP] Browser:', browser.name);
+    console.log('[APP] User Agent:', browser.userAgent);
+    console.log('[APP] Current URL:', window.location.href);
+    console.log('='.repeat(60));
+
     // Check for error messages in URL
     const error = getQueryParam('error');
     if (error) {

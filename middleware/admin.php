@@ -10,6 +10,6 @@ require_once __DIR__ . '/auth.php';
 // Check if user is admin
 if (!isset($currentUser['role']) || $currentUser['role'] !== 'admin') {
     // Redirect to dashboard with error
-    header('Location: /dashboard?error=unauthorized');
+    header('Location: ' . BASE_URL . '/dashboard?error=unauthorized');
     exit;
 }

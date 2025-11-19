@@ -17,6 +17,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['user'])) {
 
 require_once __DIR__ . '/../includes/header.php';
 ?>
+<link rel = "icon" type = "images/png" href =".\assets\images\vie.png" >
 
 <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
     <div class="max-w-md w-full space-y-8">
@@ -36,7 +37,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <!-- Username or Email -->
                 <div>
                     <label for="identifier" class="block text-sm font-medium text-gray-700 mb-2">
-                        👤 Username hoặc Email
+                        Username hoặc Email
                     </label>
                     <input
                         id="identifier"
@@ -51,7 +52,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <!-- Password -->
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                        🔒 Mật khẩu
+                        Mật khẩu
                     </label>
                     <input
                         id="password"

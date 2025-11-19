@@ -5,7 +5,18 @@
  */
 
 session_start();
+
+// CORS headers for browser compatibility
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
@@ -89,6 +100,32 @@ function handleTranslate($megaLLM, $input) {
     try {
         // Call MegaLLM API
         $translatedText = $megaLLM->translate($text, $targetLang);
+        
+        // Detect source language (simple detection)
+        $sourceLang = 'vi'; // Default
+        if (preg_match('/[a-zA-Z]/', $text) && !preg_match('/[\x{0080}-\x{FFFF}]/u', $text)) {
+            $sourceLang = 'en';
+        }
+        
+        // Save to translation_history
+        try {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("
+                INSERT INTO translation_history 
+                (user_id, original_text, translated_text, source_lang, target_lang) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $_SESSION['user_id'],
+                $text,
+                $translatedText,
+                $sourceLang,
+                $targetLang
+            ]);
+        } catch (PDOException $e) {
+            error_log("Failed to save translation history: " . $e->getMessage());
+            // Continue even if history save fails
+        }
         
         echo json_encode([
             'success' => true,

@@ -74,6 +74,36 @@ INSERT INTO users (username, email, password, role, status) VALUES
 ('admin', 'admin@docreader.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'active')
 ON DUPLICATE KEY UPDATE email=email;
 
+-- Table: summarize_history
+CREATE TABLE IF NOT EXISTS summarize_history (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    original_text TEXT NOT NULL,
+    summary_text TEXT NOT NULL,
+    original_length INT NOT NULL,
+    summary_length INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: translation_history
+CREATE TABLE IF NOT EXISTS translation_history (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    original_text TEXT NOT NULL,
+    translated_text TEXT NOT NULL,
+    source_lang VARCHAR(10) NOT NULL,
+    target_lang VARCHAR(10) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_created_at (created_at),
+    INDEX idx_source_lang (source_lang),
+    INDEX idx_target_lang (target_lang)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Display success message
 SELECT 'Database schema created successfully!' AS message;
 SELECT 'Default admin user: admin (or admin@docreader.com) / admin123' AS credentials;

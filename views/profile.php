@@ -11,7 +11,7 @@ require_once __DIR__ . '/../includes/header.php';
             <a href="<?= BASE_URL ?>/dashboard" class="text-purple-600 hover:text-purple-700 mb-4 inline-block">
                 ← Quay lại Dashboard
             </a>
-            <h1 class="text-3xl font-bold text-gray-900">👤 Thông tin cá nhân</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Thông tin cá nhân</h1>
         </div>
 
         <!-- Profile Form -->
@@ -76,7 +76,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <!-- Actions -->
                 <div class="flex gap-3 pt-6 border-t">
                     <a href="<?= BASE_URL ?>/change-password" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium transition text-center">
-                        🔒 Đổi mật khẩu
+                         Đổi mật khẩu
                     </a>
                     <a href="<?= BASE_URL ?>/dashboard" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-medium transition text-center">
                         Hủy

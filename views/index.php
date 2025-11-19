@@ -1,9 +1,16 @@
+<?php
+require_once __DIR__ . '/../config/config.php';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DocReader AI Studio - Chuyển đổi văn bản thành giọng nói AI</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/assets/images/vie.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,7 +77,7 @@
                             <a href="./register" class="px-5 py-3 bg-blue-600 text-white text-sm font-bold rounded-md hover:bg-blue-700 transition-colors">
                                 Thử ngay
                             </a>
-                        </div>
+                        </div>  
                     </div>
                 </div>
                 <div class="w-full aspect-[4/3] bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-xl shadow-2xl"></div>
@@ -188,7 +195,7 @@
                     <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
                         🎙️
                     </div>
-                    <p class="text-sm text-gray-600">© 2024 DocReader AI Studio. All rights reserved.</p>
+                    <p class="text-sm text-gray-600">© 2025 DocReader AI Studio. All rights reserved.</p>
                 </div>
                 <div class="flex items-center gap-6 text-sm text-gray-600">
                     <a href="./about" class="hover:text-blue-600 transition-colors">Về chúng tôi</a>

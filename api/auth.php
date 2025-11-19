@@ -46,6 +46,10 @@ try {
             handleResetPassword($userModel, $emailService, $input);
             break;
             
+        case 'change-password':
+            handleChangePassword($userModel, $input);
+            break;
+            
         default:
             http_response_code(400);
             echo json_encode([
@@ -287,6 +291,87 @@ function handleLogout() {
     echo json_encode([
         'success' => true,
         'message' => 'Đăng xuất thành công'
+    ]);
+}
+
+/**
+ * Handle change password (for logged-in users)
+ */
+function handleChangePassword($userModel, $input) {
+    // Check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Vui lòng đăng nhập',
+            'code' => 'UNAUTHORIZED'
+        ]);
+        return;
+    }
+    
+    // Validate input
+    if (empty($input['current_password']) || empty($input['new_password'])) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Mật khẩu hiện tại và mật khẩu mới không được để trống',
+            'code' => 'VALIDATION_ERROR'
+        ]);
+        return;
+    }
+    
+    $userId = $_SESSION['user_id'];
+    $currentPassword = $input['current_password'];
+    $newPassword = $input['new_password'];
+    
+    // Get user info
+    $user = $userModel->getUserById($userId);
+    if (!$user) {
+        http_response_code(404);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Người dùng không tồn tại',
+            'code' => 'USER_NOT_FOUND'
+        ]);
+        return;
+    }
+    
+    // Verify current password
+    if (!$userModel->verifyPassword($user['username'], $currentPassword)) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Mật khẩu hiện tại không đúng',
+            'code' => 'INVALID_PASSWORD'
+        ]);
+        return;
+    }
+    
+    // Validate new password strength
+    if (strlen($newPassword) < 6) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Mật khẩu mới phải có ít nhất 6 ký tự',
+            'code' => 'WEAK_PASSWORD'
+        ]);
+        return;
+    }
+    
+    // Update password
+    if (!$userModel->updatePasswordById($userId, $newPassword)) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Không thể cập nhật mật khẩu',
+            'code' => 'UPDATE_PASSWORD_FAILED'
+        ]);
+        return;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'Mật khẩu đã được thay đổi thành công'
     ]);
 }
 

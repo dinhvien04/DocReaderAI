@@ -4,8 +4,19 @@
  * Handles text summarization requests
  */
 
+// CORS headers for browser compatibility
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../services/MegaLLMService.php';
 
@@ -72,6 +83,26 @@ function handleSummarize() {
         // Use MegaLLM API for summarization
         $megaLLM = new MegaLLMService();
         $summary = $megaLLM->summarize($text, 'vi');
+        
+        // Save to summarize_history
+        try {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("
+                INSERT INTO summarize_history 
+                (user_id, original_text, summary_text, original_length, summary_length) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $_SESSION['user_id'],
+                $text,
+                $summary,
+                strlen($text),
+                strlen($summary)
+            ]);
+        } catch (PDOException $e) {
+            error_log("Failed to save summarize history: " . $e->getMessage());
+            // Continue even if history save fails
+        }
         
         echo json_encode([
             'success' => true,
@@ -149,6 +180,26 @@ function handleSummarizeFile() {
         // Use MegaLLM API for summarization
         $megaLLM = new MegaLLMService();
         $summary = $megaLLM->summarize($text, 'vi');
+        
+        // Save to summarize_history
+        try {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("
+                INSERT INTO summarize_history 
+                (user_id, original_text, summary_text, original_length, summary_length) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $_SESSION['user_id'],
+                $text,
+                $summary,
+                strlen($text),
+                strlen($summary)
+            ]);
+        } catch (PDOException $e) {
+            error_log("Failed to save summarize history: " . $e->getMessage());
+            // Continue even if history save fails
+        }
         
         echo json_encode([
             'success' => true,

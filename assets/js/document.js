@@ -472,9 +472,147 @@ function formatTime(seconds) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     handleFileUpload();
+    handleSummarizeFileUpload();
+    handleTranslateFileUpload();
     
     // Load history if on history tab
     if (document.getElementById('history-list')) {
         loadHistory();
     }
 });
+
+
+/**
+ * Handle file upload for Summarize tab
+ */
+function handleSummarizeFileUpload() {
+    // Use event delegation to handle file input even if element is hidden initially
+    document.addEventListener('change', async function(e) {
+        if (e.target && e.target.id === 'summarize-file-input') {
+            console.log('File selected for summarize');
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fileType = file.name.split('.').pop().toLowerCase();
+
+            if (!['pdf', 'txt', 'doc', 'docx'].includes(fileType)) {
+                showToast('Chỉ chấp nhận file PDF, TXT, DOC, DOCX', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File vượt quá 10MB', 'error');
+                return;
+            }
+
+            try {
+                let text = '';
+
+                if (fileType === 'pdf') {
+                    showToast('Đang đọc file PDF...', 'info');
+                    text = await extractTextFromPDF(file);
+                } else if (fileType === 'doc' || fileType === 'docx') {
+                    showToast('Đang đọc file Word...', 'info');
+                    text = await extractTextFromWord(file);
+                } else {
+                    text = await file.text();
+                }
+
+                const textArea = document.getElementById('summarize-text');
+                const fileName = document.getElementById('summarize-file-name');
+
+                if (textArea) {
+                    textArea.value = text;
+                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                }
+
+                if (fileName) {
+                    fileName.textContent = `Đã tải: ${file.name}`;
+                }
+
+                // Reset file input
+                e.target.value = '';
+
+            } catch (error) {
+                console.error('Process file error:', error);
+                showToast('Không thể đọc file', 'error');
+            }
+        }
+    });
+}
+
+/**
+ * Handle file upload for Translate tab
+ */
+function handleTranslateFileUpload() {
+    // Use event delegation to handle file input even if element is hidden initially
+    document.addEventListener('change', async function(e) {
+        if (e.target && e.target.id === 'translate-file-input') {
+            console.log('File selected for translate');
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fileType = file.name.split('.').pop().toLowerCase();
+
+            if (!['pdf', 'txt', 'doc', 'docx'].includes(fileType)) {
+                showToast('Chỉ chấp nhận file PDF, TXT, DOC, DOCX', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File vượt quá 10MB', 'error');
+                return;
+            }
+
+            try {
+                let text = '';
+
+                if (fileType === 'pdf') {
+                    showToast('Đang đọc file PDF...', 'info');
+                    text = await extractTextFromPDF(file);
+                } else if (fileType === 'doc' || fileType === 'docx') {
+                    showToast('Đang đọc file Word...', 'info');
+                    text = await extractTextFromWord(file);
+                } else {
+                    text = await file.text();
+                }
+
+                const textArea = document.getElementById('translate-text');
+                const fileName = document.getElementById('translate-file-name');
+
+                if (textArea) {
+                    textArea.value = text;
+                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                }
+
+                if (fileName) {
+                    fileName.textContent = `Đã tải: ${file.name}`;
+                }
+
+                // Reset file input
+                e.target.value = '';
+
+            } catch (error) {
+                console.error('Process file error:', error);
+                showToast('Không thể đọc file', 'error');
+            }
+        }
+    });
+}
+
+/**
+ * Extract text from Word document using Mammoth.js
+ */
+async function extractTextFromWord(file) {
+    try {
+        if (typeof mammoth === 'undefined') {
+            throw new Error('Mammoth.js library chưa được load');
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return result.value;
+    } catch (error) {
+        console.error('Word extraction error:', error);
+        throw new Error('Không thể đọc file Word');
+    }
+}

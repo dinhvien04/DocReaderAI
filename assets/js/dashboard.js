@@ -14,15 +14,20 @@ class QuickAccessCards {
 
     // TTS Card
     initTTSCard() {
-        const convertBtn = document.getElementById('tts-convert-btn');
+        const convertBtn = document.getElementById('convert-btn');
         const textArea = document.getElementById('tts-text');
         const voiceSelect = document.getElementById('voice-select');
-        const audioPlayer = document.getElementById('tts-audio-player');
+        const audioPlayer = document.getElementById('audio-player');
+
+        console.log('[TTS] Init TTS Card', { convertBtn, textArea, voiceSelect, audioPlayer });
 
         if (convertBtn) {
             convertBtn.addEventListener('click', async () => {
+                console.log('[TTS] Convert button clicked');
                 const text = textArea.value.trim();
                 const voice = voiceSelect.value;
+
+                console.log('[TTS] Input values:', { text: text.substring(0, 50), voice });
 
                 if (!text) {
                     showToast('Vui lòng nhập văn bản', 'error');
@@ -36,19 +41,36 @@ class QuickAccessCards {
 
                 setLoading(convertBtn, true);
                 try {
+                    console.log('[TTS] Sending API request...');
                     const response = await apiRequest(`${API_BASE}/tts.php?action=convert`, {
                         method: 'POST',
                         body: JSON.stringify({ text, voice, speed: 1.0 })
                     });
 
+                    console.log('[TTS] API response:', response);
+
                     if (response.success && response.data.audio_url) {
+                        console.log('[TTS] Setting audio source:', response.data.audio_url);
                         audioPlayer.src = response.data.audio_url;
                         audioPlayer.classList.remove('hidden');
-                        audioPlayer.play();
+                        
+                        // Try to play with error handling
+                        try {
+                            await audioPlayer.play();
+                            console.log('[TTS] Audio playing successfully');
+                        } catch (playError) {
+                            console.error('[TTS] Audio play error:', playError);
+                            showToast('Không thể phát audio: ' + playError.message, 'error');
+                        }
+                        
                         showToast('Chuyển đổi thành công', 'success');
+                    } else {
+                        console.error('[TTS] Invalid response:', response);
+                        showToast('Phản hồi không hợp lệ', 'error');
                     }
                 } catch (error) {
-                    showToast('Không thể chuyển đổi văn bản', 'error');
+                    console.error('[TTS] Conversion error:', error);
+                    showToast('Không thể chuyển đổi văn bản: ' + error.message, 'error');
                 } finally {
                     setLoading(convertBtn, false);
                 }
@@ -63,9 +85,14 @@ class QuickAccessCards {
         const resultDiv = document.getElementById('summarize-result');
         const summaryText = document.getElementById('summary-text');
 
+        console.log('[Summarize] Init Summarize Card', { summarizeBtn, textArea, resultDiv, summaryText });
+
         if (summarizeBtn) {
             summarizeBtn.addEventListener('click', async () => {
+                console.log('[Summarize] Button clicked');
                 const text = textArea.value.trim();
+
+                console.log('[Summarize] Input text length:', text.length);
 
                 if (!text) {
                     showToast('Vui lòng nhập văn bản', 'error');
@@ -74,18 +101,26 @@ class QuickAccessCards {
 
                 setLoading(summarizeBtn, true);
                 try {
+                    console.log('[Summarize] Sending API request...');
                     const response = await apiRequest(`${API_BASE}/summarize.php?action=summarize`, {
                         method: 'POST',
                         body: JSON.stringify({ text })
                     });
 
+                    console.log('[Summarize] API response:', response);
+
                     if (response.success && response.data.summary) {
                         summaryText.textContent = response.data.summary;
                         resultDiv.classList.remove('hidden');
                         showToast('Tóm tắt thành công', 'success');
+                        console.log('[Summarize] Summary displayed successfully');
+                    } else {
+                        console.error('[Summarize] Invalid response:', response);
+                        showToast('Phản hồi không hợp lệ', 'error');
                     }
                 } catch (error) {
-                    showToast('Không thể tóm tắt văn bản', 'error');
+                    console.error('[Summarize] Error:', error);
+                    showToast('Không thể tóm tắt văn bản: ' + error.message, 'error');
                 } finally {
                     setLoading(summarizeBtn, false);
                 }
@@ -102,10 +137,15 @@ class QuickAccessCards {
         const resultDiv = document.getElementById('translate-result');
         const translatedText = document.getElementById('translated-text');
 
+        console.log('[Translate] Init Translation Card', { translateBtn, textArea, targetLang, resultDiv, translatedText });
+
         if (translateBtn) {
             translateBtn.addEventListener('click', async () => {
+                console.log('[Translate] Button clicked');
                 const text = textArea.value.trim();
                 const target = targetLang.value;
+
+                console.log('[Translate] Input values:', { textLength: text.length, target });
 
                 if (!text) {
                     showToast('Vui lòng nhập văn bản', 'error');
@@ -114,18 +154,26 @@ class QuickAccessCards {
 
                 setLoading(translateBtn, true);
                 try {
+                    console.log('[Translate] Sending API request...');
                     const response = await apiRequest(`${API_BASE}/translate.php?action=translate`, {
                         method: 'POST',
                         body: JSON.stringify({ text, targetLang: target })
                     });
 
+                    console.log('[Translate] API response:', response);
+
                     if (response.success && response.data.translated_text) {
                         translatedText.textContent = response.data.translated_text;
                         resultDiv.classList.remove('hidden');
                         showToast('Dịch thành công', 'success');
+                        console.log('[Translate] Translation displayed successfully');
+                    } else {
+                        console.error('[Translate] Invalid response:', response);
+                        showToast('Phản hồi không hợp lệ', 'error');
                     }
                 } catch (error) {
-                    showToast('Không thể dịch văn bản', 'error');
+                    console.error('[Translate] Error:', error);
+                    showToast('Không thể dịch văn bản: ' + error.message, 'error');
                 } finally {
                     setLoading(translateBtn, false);
                 }
@@ -185,13 +233,21 @@ class RecentActivity {
     }
 
     async loadActivities() {
+        console.log('[RecentActivity] loadActivities called');
+        
+        // Always use table-based history for TTS
         const tbody = document.getElementById('activity-table-body');
-        if (!tbody) return;
+        console.log('[RecentActivity] tbody element:', tbody);
+        
+        if (!tbody) {
+            console.error('[RecentActivity] tbody not found!');
+            return;
+        }
 
         // Show loading state
         tbody.innerHTML = `
             <tr>
-                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                     <div class="spinner mx-auto mb-2"></div>
                     Đang tải...
                 </td>
@@ -199,19 +255,20 @@ class RecentActivity {
         `;
 
         try {
-            const response = await apiRequest(`${API_BASE}/document.php?action=history&limit=10`);
+            // Use new unified history API for TTS only
+            const response = await apiRequest(`${API_BASE}/history.php?action=list&type=tts&limit=10`);
             
-            if (response.success && response.data.history) {
-                if (response.data.history.length === 0) {
+            if (response.success && response.data.items) {
+                if (response.data.items.length === 0) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                                 📭 Chưa có hoạt động nào
                             </td>
                         </tr>
                     `;
                 } else {
-                    tbody.innerHTML = response.data.history.map(activity => this.renderActivityRow(activity)).join('');
+                    tbody.innerHTML = response.data.items.map(activity => this.renderActivityRow(activity)).join('');
                     this.attachEventListeners();
                 }
             } else {
@@ -221,7 +278,7 @@ class RecentActivity {
             console.error('Error loading activities:', error);
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="4" class="px-6 py-8 text-center text-red-500">
+                    <td colspan="5" class="px-6 py-8 text-center text-red-500">
                         ⚠️ Không thể tải lịch sử hoạt động. Vui lòng thử lại sau.
                     </td>
                 </tr>
@@ -247,8 +304,8 @@ class RecentActivity {
         // Format voice name
         const voiceName = activity.voice || 'FEMALE';
         
-        // Saved position (in seconds)
-        const savedPosition = activity.position || 0;
+        // Use audio_url from new API structure
+        const audioUrl = activity.audio_url || activity.file_path || '';
         
         return `
             <tr class="hover:bg-gray-50 border-b">
@@ -267,16 +324,14 @@ class RecentActivity {
                         controls 
                         class="w-64" 
                         preload="metadata"
-                        data-audio-id="${activity.id}"
-                        data-saved-position="${savedPosition}"
                     >
-                        <source src="${activity.file_path}" type="audio/mpeg">
+                        <source src="${audioUrl}" type="audio/mpeg">
                         Trình duyệt không hỗ trợ audio
                     </audio>
                 </td>
                 <td class="px-4 py-4">
                     <button 
-                        onclick="recentActivity.handleDelete(${activity.id})" 
+                        onclick="deleteHistoryItem(${activity.id}, 'tts')" 
                         class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition"
                         title="Xóa"
                     >
@@ -359,73 +414,7 @@ class RecentActivity {
         }
     }
 
-    attachEventListeners() {
-        // Event listeners are attached via onclick in the HTML
-    }
 
-    async handlePlay(fileId) {
-        try {
-            const response = await apiRequest(`${API_BASE}/document.php?action=get&id=${fileId}`);
-            
-            if (response.success && response.data.file_path) {
-                const audio = new Audio(response.data.file_path);
-                audio.play().catch(err => {
-                    console.error('Audio play error:', err);
-                    showToast('Không thể phát audio. File có thể không tồn tại.', 'error');
-                });
-                showToast('Đang phát audio', 'info');
-            } else {
-                showToast('Không tìm thấy file audio', 'error');
-            }
-        } catch (error) {
-            console.error('Play error:', error);
-            showToast('Không thể phát file', 'error');
-        }
-    }
-
-    async handleDownload(fileId) {
-        try {
-            const response = await apiRequest(`${API_BASE}/document.php?action=get&id=${fileId}`);
-            
-            if (response.success && response.data.file_path) {
-                const link = document.createElement('a');
-                link.href = response.data.file_path;
-                link.download = response.data.filename || 'audio.mp3';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showToast('Đang tải xuống', 'success');
-            } else {
-                showToast('Không tìm thấy file', 'error');
-            }
-        } catch (error) {
-            console.error('Download error:', error);
-            showToast('Không thể tải xuống file', 'error');
-        }
-    }
-
-    async handleDelete(fileId) {
-        if (!confirm('Bạn có chắc chắn muốn xóa file này?')) {
-            return;
-        }
-
-        try {
-            const response = await apiRequest(`${API_BASE}/document.php?action=delete&id=${fileId}`, {
-                method: 'POST'
-            });
-            
-            if (response.success) {
-                showToast('Đã xóa file thành công', 'success');
-                // Reload the table
-                this.loadActivities();
-            } else {
-                showToast(response.error || 'Không thể xóa file', 'error');
-            }
-        } catch (error) {
-            console.error('Delete error:', error);
-            showToast('Không thể xóa file', 'error');
-        }
-    }
 }
 
 // Initialize on DOM ready
@@ -435,4 +424,437 @@ let recentActivity;
 document.addEventListener('DOMContentLoaded', () => {
     quickAccessCards = new QuickAccessCards();
     recentActivity = new RecentActivity();
+    
+    // Attach event listeners to history filter tabs
+    document.querySelectorAll('.history-filter-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const filterType = this.getAttribute('data-filter');
+            if (filterType && typeof filterHistory === 'function') {
+                filterHistory(filterType);
+            }
+        });
+    });
+    
+    // Listen for history tab opened event
+    window.addEventListener('historyTabOpened', () => {
+        loadHistory('tts', 1);
+    });
 });
+
+
+// Unified History Management
+let currentHistoryFilter = 'tts';
+let currentHistoryPage = 1;
+
+/**
+ * Filter history by type
+ */
+window.filterHistory = function(type) {
+    console.log('filterHistory called with type:', type);
+    
+    currentHistoryFilter = type;
+    currentHistoryPage = 1;
+    
+    // Update filter tabs UI
+    document.querySelectorAll('.history-filter-tab').forEach(tab => {
+        tab.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        tab.classList.add('border-transparent', 'text-gray-600');
+    });
+    
+    const activeTab = document.getElementById(`filter-${type}`);
+    if (activeTab) {
+        activeTab.classList.add('active', 'border-blue-500', 'text-blue-600');
+        activeTab.classList.remove('border-transparent', 'text-gray-600');
+    }
+    
+    // Show/hide appropriate view
+    const tableView = document.getElementById('history-table-view');
+    const cardView = document.getElementById('history-items-container');
+    const pagination = document.getElementById('history-pagination');
+    
+    console.log('Elements found:', {tableView, cardView, pagination});
+    
+    if (type === 'tts') {
+        // Show table view for TTS
+        if (tableView) {
+            tableView.style.display = 'block';
+        }
+        if (cardView) {
+            cardView.style.display = 'none';
+        }
+        if (pagination) {
+            pagination.style.display = 'none';
+        }
+        // Load using old method
+        if (typeof recentActivity !== 'undefined') {
+            recentActivity.loadActivities();
+        }
+    } else {
+        // Show card view for summarize/translate
+        console.log('Switching to card view for', type);
+        if (tableView) {
+            tableView.style.display = 'none';
+        }
+        if (cardView) {
+            cardView.style.display = 'block';
+        }
+        if (pagination) {
+            pagination.style.display = 'flex';
+        }
+        // Load using new method
+        console.log('Calling loadHistory...');
+        loadHistory(type, currentHistoryPage);
+    }
+}
+
+/**
+ * Load history from API
+ */
+window.loadHistory = async function(type = 'tts', page = 1) {
+    const container = document.getElementById('history-items-container');
+    if (!container) return;
+    
+    // Show loading state
+    container.innerHTML = `
+        <div class="text-center py-12">
+            <div class="spinner mx-auto mb-4"></div>
+            <p class="text-gray-500">Đang tải lịch sử...</p>
+        </div>
+    `;
+    
+    try {
+        const response = await apiRequest(`${API_BASE}/history.php?action=list&type=${type}&page=${page}&limit=20`);
+        
+        if (response.success && response.data) {
+            const { items, total, pages } = response.data;
+            
+            if (items.length === 0) {
+                container.innerHTML = renderEmptyState(type);
+            } else {
+                container.innerHTML = items.map(item => renderHistoryItem(item)).join('');
+            }
+            
+            // Render pagination
+            renderPagination(page, pages);
+        } else {
+            throw new Error('Invalid response');
+        }
+    } catch (error) {
+        console.error('Error loading history:', error);
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <p class="text-red-500">⚠️ Không thể tải lịch sử. Vui lòng thử lại sau.</p>
+            </div>
+        `;
+        showToast('Không thể tải lịch sử', 'error');
+    }
+}
+
+/**
+ * Render a single history item based on type
+ */
+function renderHistoryItem(item) {
+    switch (item.type) {
+        case 'tts':
+            return renderTTSItem(item);
+        case 'summarize':
+            return renderSummarizeItem(item);
+        case 'translate':
+            return renderTranslateItem(item);
+        default:
+            return '';
+    }
+}
+
+/**
+ * Render TTS history item
+ */
+function renderTTSItem(item) {
+    const truncatedText = truncateText(item.text, 100);
+    const formattedDate = formatDate(item.created_at);
+    
+    return `
+        <div class="history-item bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Chuyển văn bản thành giọng nói</h3>
+                        <p class="text-sm text-gray-500">${formattedDate}</p>
+                    </div>
+                </div>
+                <button onclick="deleteHistoryItem(${item.id}, 'tts')" class="text-red-500 hover:text-red-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-gray-700 text-sm mb-2"><strong>Văn bản:</strong> ${escapeHtml(truncatedText)}</p>
+                <p class="text-gray-600 text-sm"><strong>Giọng đọc:</strong> ${escapeHtml(item.voice)}</p>
+            </div>
+            <audio controls class="w-full">
+                <source src="${item.audio_url}" type="audio/mpeg">
+                Trình duyệt không hỗ trợ audio
+            </audio>
+        </div>
+    `;
+}
+
+/**
+ * Render Summarize history item
+ */
+function renderSummarizeItem(item) {
+    const truncatedOriginal = truncateText(item.original_text, 100);
+    const truncatedSummary = truncateText(item.summary_text, 100);
+    const formattedDate = formatDate(item.created_at);
+    
+    return `
+        <div class="history-item bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Tóm tắt văn bản</h3>
+                        <p class="text-sm text-gray-500">${formattedDate}</p>
+                    </div>
+                </div>
+                <button onclick="deleteHistoryItem(${item.id}, 'summarize')" class="text-red-500 hover:text-red-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Văn bản gốc (${item.original_length} ký tự):</p>
+                    <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${escapeHtml(truncatedOriginal)}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Tóm tắt (${item.summary_length} ký tự):</p>
+                    <p class="text-gray-800 text-sm bg-green-50 p-3 rounded">${escapeHtml(truncatedSummary)}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Render Translate history item
+ */
+function renderTranslateItem(item) {
+    const truncatedOriginal = truncateText(item.original_text, 100);
+    const truncatedTranslated = truncateText(item.translated_text, 100);
+    const formattedDate = formatDate(item.created_at);
+    
+    const langNames = {
+        'vi': 'Tiếng Việt',
+        'en': 'Tiếng Anh',
+        'ja': 'Tiếng Nhật',
+        'ko': 'Tiếng Hàn',
+        'zh': 'Tiếng Trung',
+        'fr': 'Tiếng Pháp',
+        'de': 'Tiếng Đức',
+        'es': 'Tiếng Tây Ban Nha'
+    };
+    
+    const sourceLangName = langNames[item.source_lang] || item.source_lang;
+    const targetLangName = langNames[item.target_lang] || item.target_lang;
+    
+    return `
+        <div class="history-item bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Dịch thuật</h3>
+                        <p class="text-sm text-gray-500">${formattedDate}</p>
+                    </div>
+                </div>
+                <button onclick="deleteHistoryItem(${item.id}, 'translate')" class="text-red-500 hover:text-red-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex items-center gap-2 mb-3">
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">${sourceLangName}</span>
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">${targetLangName}</span>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Văn bản gốc:</p>
+                    <p class="text-gray-600 text-sm bg-gray-50 p-3 rounded">${escapeHtml(truncatedOriginal)}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Bản dịch:</p>
+                    <p class="text-gray-800 text-sm bg-purple-50 p-3 rounded">${escapeHtml(truncatedTranslated)}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Delete history item
+ */
+window.deleteHistoryItem = async function(id, type) {
+    if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) {
+        return;
+    }
+    
+    try {
+        const response = await apiRequest(`${API_BASE}/history.php?action=delete`, {
+            method: 'POST',
+            body: JSON.stringify({ id, type })
+        });
+        
+        if (response.success) {
+            showToast('Đã xóa thành công', 'success');
+            // Reload current view
+            loadHistory(currentHistoryFilter, currentHistoryPage);
+        } else {
+            showToast(response.error || 'Không thể xóa', 'error');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        showToast('Không thể xóa mục này', 'error');
+    }
+}
+
+/**
+ * Render pagination controls
+ */
+function renderPagination(currentPage, totalPages) {
+    const container = document.getElementById('history-pagination');
+    if (!container || totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div class="flex items-center gap-2">';
+    
+    // Previous button
+    if (currentPage > 1) {
+        html += `
+            <button onclick="loadHistory('${currentHistoryFilter}', ${currentPage - 1}); currentHistoryPage = ${currentPage - 1};" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Trước
+            </button>
+        `;
+    }
+    
+    // Page numbers
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    
+    if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+    
+    if (startPage > 1) {
+        html += `
+            <button onclick="loadHistory('${currentHistoryFilter}', 1); currentHistoryPage = 1;" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                1
+            </button>
+        `;
+        if (startPage > 2) {
+            html += '<span class="px-2 text-gray-500">...</span>';
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === currentPage;
+        html += `
+            <button onclick="loadHistory('${currentHistoryFilter}', ${i}); currentHistoryPage = ${i};" 
+                    class="px-4 py-2 border rounded-lg transition ${
+                        isActive 
+                            ? 'bg-blue-500 text-white border-blue-500' 
+                            : 'border-gray-300 hover:bg-gray-50'
+                    }">
+                ${i}
+            </button>
+        `;
+    }
+    
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            html += '<span class="px-2 text-gray-500">...</span>';
+        }
+        html += `
+            <button onclick="loadHistory('${currentHistoryFilter}', ${totalPages}); currentHistoryPage = ${totalPages};" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                ${totalPages}
+            </button>
+        `;
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+        html += `
+            <button onclick="loadHistory('${currentHistoryFilter}', ${currentPage + 1}); currentHistoryPage = ${currentPage + 1};" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Sau
+            </button>
+        `;
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+/**
+ * Render empty state based on filter type
+ */
+function renderEmptyState(type) {
+    const messages = {
+        'tts': 'Chưa có lịch sử chuyển văn bản thành giọng nói',
+        'summarize': 'Chưa có lịch sử tóm tắt văn bản',
+        'translate': 'Chưa có lịch sử dịch thuật'
+    };
+    
+    const message = messages[type] || 'Chưa có lịch sử hoạt động nào';
+    
+    return `
+        <div class="text-center py-16">
+            <div class="text-6xl mb-4">📭</div>
+            <p class="text-gray-500 text-lg">${message}</p>
+            <p class="text-gray-400 text-sm mt-2">Hãy bắt đầu sử dụng các tính năng để tạo lịch sử</p>
+        </div>
+    `;
+}
+
+/**
+ * Truncate text to specified length
+ */
+function truncateText(text, maxLength) {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}

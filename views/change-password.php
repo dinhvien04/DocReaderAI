@@ -11,7 +11,7 @@ require_once __DIR__ . '/../includes/header.php';
             <a href="<?= BASE_URL ?>/dashboard" class="text-purple-600 hover:text-purple-700 mb-4 inline-block">
                 ← Quay lại Dashboard
             </a>
-            <h1 class="text-3xl font-bold text-gray-900">🔒 Đổi mật khẩu</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Đổi mật khẩu</h1>
             <p class="text-gray-600 mt-2">Cập nhật mật khẩu của bạn</p>
         </div>
 
@@ -65,7 +65,7 @@ require_once __DIR__ . '/../includes/header.php';
 
                 <!-- Security Tips -->
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 class="font-medium text-blue-900 mb-2">💡 Mẹo bảo mật:</h4>
+                    <h4 class="font-medium text-blue-900 mb-2">Mẹo bảo mật:</h4>
                     <ul class="text-sm text-blue-800 space-y-1">
                         <li>• Sử dụng ít nhất 6 ký tự</li>
                         <li>• Kết hợp chữ hoa, chữ thường và số</li>
@@ -126,8 +126,8 @@ document.getElementById('change-password-form').addEventListener('submit', async
         const response = await apiRequest(`${API_BASE}/auth.php?action=change-password`, {
             method: 'POST',
             body: JSON.stringify({
-                currentPassword,
-                newPassword
+                current_password: currentPassword,
+                new_password: newPassword
             })
         });
         

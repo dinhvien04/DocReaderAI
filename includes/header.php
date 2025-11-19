@@ -13,6 +13,9 @@ require_once __DIR__ . '/../includes/functions.php';
     <title><?= $pageTitle ?? 'DocReader AI Studio' ?></title>
     <meta name="description" content="Chuyển đổi văn bản thành giọng nói với AI - DocReader AI Studio">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/assets/images/vie.png">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     

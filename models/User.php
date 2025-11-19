@@ -159,6 +159,32 @@ class User {
     }
     
     /**
+     * Update user password by ID
+     * @param int $userId
+     * @param string $password Plain text password (will be hashed)
+     * @return bool
+     */
+    public function updatePasswordById(int $userId, string $password): bool {
+        try {
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            
+            $stmt = $this->db->prepare("
+                UPDATE users 
+                SET password = :password
+                WHERE id = :id
+            ");
+            
+            return $stmt->execute([
+                'password' => $hashedPassword,
+                'id' => $userId
+            ]);
+        } catch (PDOException $e) {
+            error_log("Error in updatePasswordById: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Update OTP for user
      * @param string $email
      * @param string $otp

@@ -23,7 +23,7 @@ require_once __DIR__ . '/../includes/header.php';
         <!-- Header -->
         <div class="text-center">
             <h2 class="text-4xl font-bold text-gray-900 mb-2">
-                🎉 Đăng ký tài khoản
+                Đăng ký tài khoản
             </h2>
             <p class="text-gray-600">
                 Tạo tài khoản miễn phí ngay hôm nay
@@ -39,7 +39,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <!-- Username -->
                     <div>
                         <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                            👤 Username
+                            Username
                         </label>
                         <input
                             id="username"
@@ -55,7 +55,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <!-- Email -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                            📧 Email
+                            Email
                         </label>
                         <input
                             id="email"
@@ -70,7 +70,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <!-- Password -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            🔒 Mật khẩu
+                            Mật khẩu
                         </label>
                         <input
                             id="password"
@@ -86,7 +86,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <!-- Confirm Password -->
                     <div>
                         <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-2">
-                            🔒 Xác nhận mật khẩu
+                            Xác nhận mật khẩu
                         </label>
                         <input
                             id="confirm-password"
@@ -118,7 +118,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <form id="verify-form" class="space-y-4">
                     <div>
                         <label for="otp" class="block text-sm font-medium text-gray-700 mb-2">
-                            🔢 Mã OTP (6 chữ số)
+                             Mã OTP (6 chữ số)
                         </label>
                         <input
                             id="otp"

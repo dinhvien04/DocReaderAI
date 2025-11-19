@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     // Redirect to login page
-    header('Location: /login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+    header('Location: ' . BASE_URL . '/login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
 }
 
@@ -29,7 +29,7 @@ if (isset($_SESSION['last_activity'])) {
         // Session expired
         session_unset();
         session_destroy();
-        header('Location: /login?error=session_expired');
+        header('Location: ' . BASE_URL . '/login?error=session_expired');
         exit;
     }
 }

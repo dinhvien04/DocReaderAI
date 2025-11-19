@@ -61,6 +61,7 @@
     <script src="<?= BASE_URL ?>/assets/js/tts.js?v=<?= time() ?>"></script>
     <script src="<?= BASE_URL ?>/assets/js/document.js?v=<?= time() ?>"></script>
     <script src="<?= BASE_URL ?>/assets/js/dashboard.js?v=<?= time() ?>"></script>
+
     <script src="<?= BASE_URL ?>/assets/js/admin.js?v=<?= time() ?>"></script>
     
     <!-- Mobile Menu Toggle -->
