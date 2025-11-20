@@ -32,6 +32,11 @@ try {
             handleDelete($db, $userId, $input);
             break;
             
+        case 'update-position':
+            $userId = requireAuth();
+            handleUpdatePosition($db, $userId, $input);
+            break;
+            
         default:
             http_response_code(400);
             echo json_encode([
@@ -80,7 +85,7 @@ function handleList($db, $userId) {
         if ($type === 'all' || $type === 'tts') {
             // Fetch TTS history
             $stmt = $db->prepare("
-                SELECT id, text, audio_url, voice, lang, created_at
+                SELECT id, text, audio_url, voice, lang, position, created_at
                 FROM audio_history
                 WHERE user_id = ?
                 ORDER BY created_at DESC
@@ -102,6 +107,7 @@ function handleList($db, $userId) {
                     'audio_url' => $item['audio_url'],
                     'voice' => $item['voice'],
                     'lang' => $item['lang'],
+                    'position' => $item['position'], // Include position
                     'created_at' => $item['created_at']
                 ];
             }
@@ -318,6 +324,71 @@ function handleDelete($db, $userId, $input) {
             'success' => false,
             'error' => 'Database error',
             'code' => 'DATABASE_ERROR'
+        ]);
+    }
+}
+
+
+/**
+ * Handle update audio position
+ */
+function handleUpdatePosition($db, $userId, $input) {
+    try {
+        $id = $input['id'] ?? null;
+        $type = $input['type'] ?? 'tts';
+        $position = isset($input['position']) ? (int)$input['position'] : 0;
+        
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'ID is required'
+            ]);
+            return;
+        }
+        
+        // Only support TTS for now
+        if ($type !== 'tts') {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Only TTS type is supported'
+            ]);
+            return;
+        }
+        
+        // Update position in audio_history table
+        $stmt = $db->prepare("
+            UPDATE audio_history 
+            SET position = ?, updated_at = NOW()
+            WHERE id = ? AND user_id = ?
+        ");
+        
+        $stmt->execute([$position, $id, $userId]);
+        
+        if ($stmt->rowCount() > 0) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Position updated successfully',
+                'data' => [
+                    'id' => $id,
+                    'position' => $position
+                ]
+            ]);
+        } else {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Audio not found or not authorized'
+            ]);
+        }
+        
+    } catch (PDOException $e) {
+        error_log("Update position error: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Failed to update position'
         ]);
     }
 }

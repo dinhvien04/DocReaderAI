@@ -330,8 +330,10 @@ class RecentActivity {
                     <audio 
                         id="audio-${activity.id}" 
                         controls 
-                        class="w-64" 
+                        class="w-64 audio-player" 
                         preload="metadata"
+                        data-audio-id="${activity.id}"
+                        data-saved-position="${activity.position || 0}"
                     >
                         <source src="${audioUrl}" type="audio/mpeg">
                         Trình duyệt không hỗ trợ audio
@@ -1164,4 +1166,141 @@ async function processUploadedFile(file) {
     }
 
     return text;
+}
+
+
+// Audio Resume Playback Feature
+(function() {
+    console.log('[AudioResume] Initializing audio resume playback');
+    
+    // Track all audio elements
+    const audioElements = new Map();
+    
+    // Save position to server
+    async function saveAudioPosition(audioId, position) {
+        try {
+            console.log(`[AudioResume] Saving position for audio ${audioId}: ${position}s`);
+            await apiRequest(`${API_BASE}/history.php?action=update-position`, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    id: audioId, 
+                    type: 'tts',
+                    position: Math.floor(position)
+                })
+            });
+        } catch (error) {
+            console.error('[AudioResume] Failed to save position:', error);
+        }
+    }
+    
+    // Initialize audio element with saved position
+    function initAudioElement(audio) {
+        const audioId = parseInt(audio.dataset.audioId);
+        const savedPosition = parseInt(audio.dataset.savedPosition) || 0;
+        
+        if (!audioId) return;
+        
+        console.log(`[AudioResume] Init audio ${audioId}, saved position: ${savedPosition}s`);
+        
+        // Store reference
+        audioElements.set(audioId, audio);
+        
+        // Set saved position when metadata is loaded
+        audio.addEventListener('loadedmetadata', function() {
+            if (savedPosition > 0 && savedPosition < audio.duration) {
+                audio.currentTime = savedPosition;
+                console.log(`[AudioResume] Resumed audio ${audioId} at ${savedPosition}s`);
+            }
+        }, { once: true });
+        
+        // Save position every 5 seconds while playing
+        let saveInterval;
+        audio.addEventListener('play', function() {
+            console.log(`[AudioResume] Audio ${audioId} started playing`);
+            saveInterval = setInterval(() => {
+                if (!audio.paused && audio.currentTime > 0) {
+                    saveAudioPosition(audioId, audio.currentTime);
+                }
+            }, 5000);
+        });
+        
+        // Save position when paused
+        audio.addEventListener('pause', function() {
+            console.log(`[AudioResume] Audio ${audioId} paused at ${audio.currentTime}s`);
+            clearInterval(saveInterval);
+            if (audio.currentTime > 0 && audio.currentTime < audio.duration) {
+                saveAudioPosition(audioId, audio.currentTime);
+            }
+        });
+        
+        // Reset position when ended
+        audio.addEventListener('ended', function() {
+            console.log(`[AudioResume] Audio ${audioId} ended, resetting position`);
+            clearInterval(saveInterval);
+            saveAudioPosition(audioId, 0);
+        });
+    }
+    
+    // Initialize all audio elements on page
+    function initAllAudioElements() {
+        const audios = document.querySelectorAll('audio.audio-player[data-audio-id]');
+        console.log(`[AudioResume] Found ${audios.length} audio elements`);
+        audios.forEach(initAudioElement);
+    }
+    
+    // Save all playing audio positions before page unload
+    window.addEventListener('beforeunload', function() {
+        console.log('[AudioResume] Page unloading, saving all positions');
+        audioElements.forEach((audio, audioId) => {
+            if (!audio.paused && audio.currentTime > 0) {
+                // Use sendBeacon for reliable save on page unload
+                const data = JSON.stringify({ 
+                    id: audioId, 
+                    type: 'tts',
+                    position: Math.floor(audio.currentTime)
+                });
+                navigator.sendBeacon(`${API_BASE}/history.php?action=update-position`, data);
+            }
+        });
+    });
+    
+    // Save positions when switching tabs (page visibility change)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            console.log('[AudioResume] Tab hidden, saving all positions');
+            audioElements.forEach((audio, audioId) => {
+                if (!audio.paused && audio.currentTime > 0) {
+                    saveAudioPosition(audioId, audio.currentTime);
+                }
+            });
+        }
+    });
+    
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllAudioElements);
+    } else {
+        initAllAudioElements();
+    }
+    
+    // Re-initialize when history is loaded (for dynamic content)
+    window.addEventListener('historyLoaded', initAllAudioElements);
+    
+    // Expose function for manual initialization
+    window.initAudioResume = initAllAudioElements;
+})();
+
+
+// Trigger audio resume after history loads
+const originalLoadActivities = window.RecentActivity?.prototype?.loadActivities;
+if (originalLoadActivities) {
+    window.RecentActivity.prototype.loadActivities = async function() {
+        await originalLoadActivities.call(this);
+        // Trigger audio resume initialization
+        setTimeout(() => {
+            if (window.initAudioResume) {
+                window.initAudioResume();
+            }
+        }, 500);
+    };
 }

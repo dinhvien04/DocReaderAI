@@ -44,7 +44,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="space-y-4">
                     <div>
                         <label for="reset-email" class="block text-sm font-medium text-gray-700 mb-2">
-                            📧 Email
+                            Email
                         </label>
                         <input
                             id="reset-email"
@@ -73,7 +73,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="space-y-4">
                     <div>
                         <label for="reset-otp" class="block text-sm font-medium text-gray-700 mb-2">
-                            🔢 Mã OTP (6 chữ số)
+                            Mã OTP (6 chữ số)
                         </label>
                         <input
                             id="reset-otp"
@@ -111,7 +111,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <div class="space-y-4">
                     <div>
                         <label for="new-password" class="block text-sm font-medium text-gray-700 mb-2">
-                            🔒 Mật khẩu mới
+                            Mật khẩu mới
                         </label>
                         <input
                             id="new-password"
@@ -124,7 +124,7 @@ require_once __DIR__ . '/../includes/header.php';
                     </div>
                     <div>
                         <label for="confirm-new-password" class="block text-sm font-medium text-gray-700 mb-2">
-                            🔒 Xác nhận mật khẩu mới
+                            Xác nhận mật khẩu mới
                         </label>
                         <input
                             id="confirm-new-password"
