@@ -1058,17 +1058,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             try {
-                let text = '';
-
-                if (fileType === 'pdf') {
-                    showToast('Đang đọc file PDF...', 'info');
-                    text = await extractTextFromPDF(file);
-                } else if (fileType === 'txt') {
-                    text = await file.text();
-                } else {
-                    showToast('Định dạng file này chưa được hỗ trợ', 'error');
-                    return;
-                }
+                const text = await processUploadedFile(file);
 
                 if (textArea) {
                     textArea.value = text;
@@ -1085,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (error) {
                 console.error('[Summarize] Process file error:', error);
-                showToast('Không thể đọc file', 'error');
+                showToast(error.message || 'Không thể đọc file', 'error');
             }
         });
     }
@@ -1113,17 +1103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             try {
-                let text = '';
-
-                if (fileType === 'pdf') {
-                    showToast('Đang đọc file PDF...', 'info');
-                    text = await extractTextFromPDF(file);
-                } else if (fileType === 'txt') {
-                    text = await file.text();
-                } else {
-                    showToast('Định dạng file này chưa được hỗ trợ', 'error');
-                    return;
-                }
+                const text = await processUploadedFile(file);
 
                 if (textArea) {
                     textArea.value = text;
@@ -1140,8 +1120,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (error) {
                 console.error('[Translate] Process file error:', error);
-                showToast('Không thể đọc file', 'error');
+                showToast(error.message || 'Không thể đọc file', 'error');
             }
         });
     }
 });
+
+
+/**
+ * Extract text from Word document using Mammoth.js
+ */
+async function extractTextFromWord(file) {
+    try {
+        if (typeof mammoth === 'undefined') {
+            throw new Error('Mammoth.js library chưa được load');
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return result.value;
+    } catch (error) {
+        console.error('[Word] Extraction error:', error);
+        throw new Error('Không thể đọc file Word');
+    }
+}
+
+/**
+ * Process uploaded file and extract text
+ */
+async function processUploadedFile(file) {
+    const fileType = file.name.split('.').pop().toLowerCase();
+    let text = '';
+
+    if (fileType === 'pdf') {
+        showToast('Đang đọc file PDF...', 'info');
+        text = await extractTextFromPDF(file);
+    } else if (fileType === 'txt') {
+        text = await file.text();
+    } else if (fileType === 'doc' || fileType === 'docx') {
+        showToast('Đang đọc file Word...', 'info');
+        text = await extractTextFromWord(file);
+    } else {
+        throw new Error('Định dạng file này chưa được hỗ trợ');
+    }
+
+    return text;
+}
