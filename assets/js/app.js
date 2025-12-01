@@ -270,3 +270,39 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast(successMessages[success] || 'Thành công', 'success');
     }
 });
+
+
+/**
+ * Download text content as a file
+ * @param {string} text - Text content to download
+ * @param {string} filename - Name of the file to download
+ */
+function downloadAsText(text, filename = 'download.txt') {
+    if (!text) {
+        showToast('Không có nội dung để tải về', 'error');
+        return;
+    }
+    
+    try {
+        // Create a Blob with the text content
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        
+        // Create a temporary download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        
+        // Cleanup
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        
+        showToast('Đã tải file thành công', 'success');
+    } catch (error) {
+        console.error('Download error:', error);
+        showToast('Không thể tải file: ' + error.message, 'error');
+    }
+}

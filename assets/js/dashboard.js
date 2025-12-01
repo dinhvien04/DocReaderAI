@@ -6,76 +6,17 @@
 // Quick Access Cards Management
 class QuickAccessCards {
     constructor() {
-        this.initTTSCard();
+        // NOTE: TTS Card initialization moved to tts-fix.js to prevent double-click issues
+        // this.initTTSCard(); // DISABLED - handled by tts-fix.js
         this.initSummarizeCard();
         this.initTranslationCard();
         this.initFileManagementCard();
     }
 
-    // TTS Card
+    // TTS Card - DISABLED - Now handled by tts-fix.js
     initTTSCard() {
-        const convertBtn = document.getElementById('convert-btn');
-        const textArea = document.getElementById('tts-text');
-        const voiceSelect = document.getElementById('voice-select');
-        const audioPlayer = document.getElementById('audio-player');
-
-        console.log('[TTS] Init TTS Card', { convertBtn, textArea, voiceSelect, audioPlayer });
-
-        if (convertBtn) {
-            convertBtn.addEventListener('click', async () => {
-                console.log('[TTS] Convert button clicked');
-                const text = textArea.value.trim();
-                const voice = voiceSelect.value;
-
-                console.log('[TTS] Input values:', { text: text.substring(0, 50), voice });
-
-                if (!text) {
-                    showToast('Vui lòng nhập văn bản', 'error');
-                    return;
-                }
-
-                if (text.length > 5000) {
-                    showToast('Văn bản quá dài (tối đa 5000 ký tự)', 'error');
-                    return;
-                }
-
-                setLoading(convertBtn, true);
-                try {
-                    console.log('[TTS] Sending API request...');
-                    const response = await apiRequest(`${API_BASE}/tts.php?action=convert`, {
-                        method: 'POST',
-                        body: JSON.stringify({ text, voice, speed: 1.0 })
-                    });
-
-                    console.log('[TTS] API response:', response);
-
-                    if (response.success && response.data.audio_url) {
-                        console.log('[TTS] Setting audio source:', response.data.audio_url);
-                        audioPlayer.src = response.data.audio_url;
-                        audioPlayer.classList.remove('hidden');
-                        
-                        // Try to play with error handling
-                        try {
-                            await audioPlayer.play();
-                            console.log('[TTS] Audio playing successfully');
-                        } catch (playError) {
-                            console.error('[TTS] Audio play error:', playError);
-                            showToast('Không thể phát audio: ' + playError.message, 'error');
-                        }
-                        
-                        showToast('Chuyển đổi thành công', 'success');
-                    } else {
-                        console.error('[TTS] Invalid response:', response);
-                        showToast('Phản hồi không hợp lệ', 'error');
-                    }
-                } catch (error) {
-                    console.error('[TTS] Conversion error:', error);
-                    showToast('Không thể chuyển đổi văn bản: ' + error.message, 'error');
-                } finally {
-                    setLoading(convertBtn, false);
-                }
-            });
-        }
+        console.log('[TTS] initTTSCard called but disabled - using tts-fix.js instead');
+        // All TTS functionality moved to tts-fix.js to prevent double-click issues
     }
 
     // Summarize Card
@@ -192,7 +133,7 @@ class QuickAccessCards {
 
         try {
             const response = await apiRequest(`${API_BASE}/document.php?action=list&limit=3`);
-            
+
             if (response.success && response.data.files) {
                 if (response.data.files.length === 0) {
                     filesList.innerHTML = '<p class="text-gray-500 text-sm">Chưa có file nào</p>';
@@ -217,7 +158,7 @@ class QuickAccessCards {
         const now = new Date();
         const diffMs = now - date;
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 0) return 'Hôm nay';
         if (diffDays === 1) return '1 ngày trước';
         if (diffDays < 7) return `${diffDays} ngày trước`;
@@ -234,11 +175,11 @@ class RecentActivity {
 
     async loadActivities() {
         console.log('[RecentActivity] loadActivities called');
-        
+
         // Always use table-based history for TTS
         const tbody = document.getElementById('activity-table-body');
         console.log('[RecentActivity] tbody element:', tbody);
-        
+
         if (!tbody) {
             console.error('[RecentActivity] tbody not found!');
             return;
@@ -257,7 +198,7 @@ class RecentActivity {
         try {
             // Use new unified history API for TTS only
             const response = await apiRequest(`${API_BASE}/history.php?action=list&type=tts&limit=10`);
-            
+
             if (response.success && response.data.items) {
                 if (response.data.items.length === 0) {
                     tbody.innerHTML = `
@@ -294,19 +235,19 @@ class RecentActivity {
             div.textContent = text;
             return div.innerHTML;
         };
-        
+
         // Truncate text if too long
         const truncateText = (text, maxLength = 50) => {
             if (text.length <= maxLength) return text;
             return text.substring(0, maxLength) + '...';
         };
-        
+
         // Format voice name
         const voiceName = activity.voice || 'FEMALE';
-        
+
         // Use audio_url from new API structure
         const audioUrl = activity.audio_url || activity.file_path || '';
-        
+
         return `
             <tr class="hover:bg-gray-50 border-b">
                 <td class="px-4 py-4">
@@ -355,11 +296,11 @@ class RecentActivity {
     attachEventListeners() {
         // Attach event listeners to all audio elements
         const audioElements = document.querySelectorAll('audio[data-audio-id]');
-        
+
         audioElements.forEach(audio => {
             const audioId = parseInt(audio.dataset.audioId);
             const savedPosition = parseInt(audio.dataset.savedPosition) || 0;
-            
+
             // Set saved position when metadata is loaded
             audio.addEventListener('loadedmetadata', () => {
                 if (savedPosition > 0 && savedPosition < audio.duration) {
@@ -367,7 +308,7 @@ class RecentActivity {
                     console.log(`Resumed audio ${audioId} at ${savedPosition}s`);
                 }
             });
-            
+
             // Save position when paused
             audio.addEventListener('pause', () => {
                 const currentTime = Math.floor(audio.currentTime);
@@ -376,14 +317,14 @@ class RecentActivity {
                     console.log(`Saved on pause: ${currentTime}s`);
                 }
             });
-            
+
             // Reset position when ended
             audio.addEventListener('ended', () => {
                 this.savePosition(audioId, 0);
                 console.log(`Audio ended, reset position`);
             });
         });
-        
+
         // Save all audio positions when leaving the page or switching tabs
         window.addEventListener('beforeunload', () => {
             audioElements.forEach(audio => {
@@ -396,7 +337,7 @@ class RecentActivity {
                 }
             });
         });
-        
+
         // Save when switching tabs (page visibility change)
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
@@ -434,17 +375,17 @@ let recentActivity;
 document.addEventListener('DOMContentLoaded', () => {
     quickAccessCards = new QuickAccessCards();
     recentActivity = new RecentActivity();
-    
+
     // Attach event listeners to history filter tabs
     document.querySelectorAll('.history-filter-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function () {
             const filterType = this.getAttribute('data-filter');
             if (filterType && typeof filterHistory === 'function') {
                 filterHistory(filterType);
             }
         });
     });
-    
+
     // Listen for history tab opened event
     window.addEventListener('historyTabOpened', () => {
         loadHistory('tts', 1);
@@ -459,31 +400,31 @@ let currentHistoryPage = 1;
 /**
  * Filter history by type
  */
-window.filterHistory = function(type) {
+window.filterHistory = function (type) {
     console.log('filterHistory called with type:', type);
-    
+
     currentHistoryFilter = type;
     currentHistoryPage = 1;
-    
+
     // Update filter tabs UI
     document.querySelectorAll('.history-filter-tab').forEach(tab => {
         tab.classList.remove('active', 'border-blue-500', 'text-blue-600');
         tab.classList.add('border-transparent', 'text-gray-600');
     });
-    
+
     const activeTab = document.getElementById(`filter-${type}`);
     if (activeTab) {
         activeTab.classList.add('active', 'border-blue-500', 'text-blue-600');
         activeTab.classList.remove('border-transparent', 'text-gray-600');
     }
-    
+
     // Show/hide appropriate view
     const tableView = document.getElementById('history-table-view');
     const cardView = document.getElementById('history-items-container');
     const pagination = document.getElementById('history-pagination');
-    
-    console.log('Elements found:', {tableView, cardView, pagination});
-    
+
+    console.log('Elements found:', { tableView, cardView, pagination });
+
     if (type === 'tts') {
         // Show table view for TTS
         if (tableView) {
@@ -520,10 +461,10 @@ window.filterHistory = function(type) {
 /**
  * Load history from API
  */
-window.loadHistory = async function(type = 'tts', page = 1) {
+window.loadHistory = async function (type = 'tts', page = 1) {
     const container = document.getElementById('history-items-container');
     if (!container) return;
-    
+
     // Show loading state
     container.innerHTML = `
         <div class="text-center py-12">
@@ -531,19 +472,19 @@ window.loadHistory = async function(type = 'tts', page = 1) {
             <p class="text-gray-500">Đang tải lịch sử...</p>
         </div>
     `;
-    
+
     try {
         const response = await apiRequest(`${API_BASE}/history.php?action=list&type=${type}&page=${page}&limit=20`);
-        
+
         if (response.success && response.data) {
             const { items, total, pages } = response.data;
-            
+
             if (items.length === 0) {
                 container.innerHTML = renderEmptyState(type);
             } else {
                 container.innerHTML = items.map(item => renderHistoryItem(item)).join('');
             }
-            
+
             // Render pagination
             renderPagination(page, pages);
         } else {
@@ -582,7 +523,7 @@ function renderHistoryItem(item) {
 function renderTTSItem(item) {
     const truncatedText = truncateText(item.text, 100);
     const formattedDate = formatDate(item.created_at);
-    
+
     return `
         <div class="history-item bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div class="flex items-start justify-between mb-4">
@@ -622,7 +563,7 @@ function renderSummarizeItem(item) {
     const truncatedOriginal = truncateText(item.original_text, 100);
     const truncatedSummary = truncateText(item.summary_text, 100);
     const formattedDate = formatDate(item.created_at);
-    
+
     return `
         <div class="history-item bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div class="flex items-start justify-between mb-4">
@@ -682,7 +623,7 @@ function renderTranslateItem(item) {
     const truncatedOriginal = truncateText(item.original_text, 100);
     const truncatedTranslated = truncateText(item.translated_text, 100);
     const formattedDate = formatDate(item.created_at);
-    
+
     const langNames = {
         'vi': 'Tiếng Việt',
         'en': 'Tiếng Anh',
@@ -693,10 +634,10 @@ function renderTranslateItem(item) {
         'de': 'Tiếng Đức',
         'es': 'Tiếng Tây Ban Nha'
     };
-    
+
     const sourceLangName = langNames[item.source_lang] || item.source_lang;
     const targetLangName = langNames[item.target_lang] || item.target_lang;
-    
+
     return `
         <div class="history-item bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div class="flex items-start justify-between mb-4">
@@ -759,17 +700,17 @@ function renderTranslateItem(item) {
 /**
  * Delete history item
  */
-window.deleteHistoryItem = async function(id, type) {
+window.deleteHistoryItem = async function (id, type) {
     if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) {
         return;
     }
-    
+
     try {
         const response = await apiRequest(`${API_BASE}/history.php?action=delete`, {
             method: 'POST',
             body: JSON.stringify({ id, type })
         });
-        
+
         if (response.success) {
             showToast('Đã xóa thành công', 'success');
             // Reload current view
@@ -792,9 +733,9 @@ function renderPagination(currentPage, totalPages) {
         container.innerHTML = '';
         return;
     }
-    
+
     let html = '<div class="flex items-center gap-2">';
-    
+
     // Previous button
     if (currentPage > 1) {
         html += `
@@ -804,16 +745,16 @@ function renderPagination(currentPage, totalPages) {
             </button>
         `;
     }
-    
+
     // Page numbers
     const maxVisible = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-    
+
     if (endPage - startPage < maxVisible - 1) {
         startPage = Math.max(1, endPage - maxVisible + 1);
     }
-    
+
     if (startPage > 1) {
         html += `
             <button onclick="loadHistory('${currentHistoryFilter}', 1); currentHistoryPage = 1;" 
@@ -825,21 +766,20 @@ function renderPagination(currentPage, totalPages) {
             html += '<span class="px-2 text-gray-500">...</span>';
         }
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
         const isActive = i === currentPage;
         html += `
             <button onclick="loadHistory('${currentHistoryFilter}', ${i}); currentHistoryPage = ${i};" 
-                    class="px-4 py-2 border rounded-lg transition ${
-                        isActive 
-                            ? 'bg-blue-500 text-white border-blue-500' 
-                            : 'border-gray-300 hover:bg-gray-50'
-                    }">
+                    class="px-4 py-2 border rounded-lg transition ${isActive
+                ? 'bg-blue-500 text-white border-blue-500'
+                : 'border-gray-300 hover:bg-gray-50'
+            }">
                 ${i}
             </button>
         `;
     }
-    
+
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
             html += '<span class="px-2 text-gray-500">...</span>';
@@ -851,7 +791,7 @@ function renderPagination(currentPage, totalPages) {
             </button>
         `;
     }
-    
+
     // Next button
     if (currentPage < totalPages) {
         html += `
@@ -861,7 +801,7 @@ function renderPagination(currentPage, totalPages) {
             </button>
         `;
     }
-    
+
     html += '</div>';
     container.innerHTML = html;
 }
@@ -875,9 +815,9 @@ function renderEmptyState(type) {
         'summarize': 'Chưa có lịch sử tóm tắt văn bản',
         'translate': 'Chưa có lịch sử dịch thuật'
     };
-    
+
     const message = messages[type] || 'Chưa có lịch sử hoạt động nào';
-    
+
     return `
         <div class="text-center py-16">
             <div class="text-6xl mb-4">📭</div>
@@ -909,25 +849,25 @@ function escapeHtml(text) {
 /**
  * Show full text in modal with copy button
  */
-window.showFullText = function(text, title) {
+window.showFullText = function (text, title) {
     console.log('[Modal] Opening modal with text length:', text ? text.length : 0);
-    
+
     // Create modal
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-    modal.onclick = function(e) {
+    modal.onclick = function (e) {
         if (e.target === modal) {
             document.body.removeChild(modal);
         }
     };
-    
+
     // Create modal content
     const modalContent = document.createElement('div');
     modalContent.className = 'bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col';
-    modalContent.onclick = function(e) {
+    modalContent.onclick = function (e) {
         e.stopPropagation();
     };
-    
+
     // Header
     const header = document.createElement('div');
     header.className = 'flex items-center justify-between p-6 border-b';
@@ -939,7 +879,7 @@ window.showFullText = function(text, title) {
             </svg>
         </button>
     `;
-    
+
     // Body
     const body = document.createElement('div');
     body.className = 'p-6 overflow-y-auto flex-1';
@@ -950,11 +890,17 @@ window.showFullText = function(text, title) {
     pre.textContent = text;
     textContainer.appendChild(pre);
     body.appendChild(textContainer);
-    
+
     // Footer
     const footer = document.createElement('div');
     footer.className = 'flex items-center justify-end gap-3 p-6 border-t bg-gray-50';
     footer.innerHTML = `
+        <button class="download-text-btn flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Tải về TXT</span>
+        </button>
         <button class="copy-text-btn flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -965,21 +911,34 @@ window.showFullText = function(text, title) {
             Đóng
         </button>
     `;
-    
+
     // Assemble modal
     modalContent.appendChild(header);
     modalContent.appendChild(body);
     modalContent.appendChild(footer);
     modal.appendChild(modalContent);
-    
+
     // Add event listeners
     modal.querySelectorAll('.close-modal-btn').forEach(btn => {
-        btn.onclick = function() {
+        btn.onclick = function () {
             document.body.removeChild(modal);
         };
     });
-    
-    footer.querySelector('.copy-text-btn').onclick = async function() {
+
+    // Download button handler
+    footer.querySelector('.download-text-btn').onclick = function () {
+        try {
+            // Create filename from title
+            const filename = title.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.txt';
+            downloadAsText(text, filename);
+        } catch (error) {
+            console.error('Download failed:', error);
+            showToast('Không thể tải file', 'error');
+        }
+    };
+
+    // Copy button handler
+    footer.querySelector('.copy-text-btn').onclick = async function () {
         try {
             await navigator.clipboard.writeText(text);
             const btn = this;
@@ -992,7 +951,7 @@ window.showFullText = function(text, title) {
             `;
             btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
             btn.classList.add('bg-green-500');
-            
+
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
                 btn.classList.remove('bg-green-500');
@@ -1003,7 +962,7 @@ window.showFullText = function(text, title) {
             showToast('Không thể copy', 'error');
         }
     };
-    
+
     document.body.appendChild(modal);
     console.log('[Modal] Modal opened successfully');
 };
@@ -1012,7 +971,7 @@ window.showFullText = function(text, title) {
 
 
 // Add event delegation for view full text buttons
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const btn = e.target.closest('.view-full-text-btn');
     if (btn) {
         const text = btn.getAttribute('data-text');
@@ -1029,16 +988,16 @@ document.addEventListener('click', function(e) {
 
 
 // Handle file upload for Summarize tab
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const summarizeFileInput = document.getElementById('summarize-file-input');
     const translateFileInput = document.getElementById('translate-file-input');
-    
+
     console.log('[FileUpload] Initializing file upload handlers');
     console.log('[FileUpload] Summarize input:', summarizeFileInput);
     console.log('[FileUpload] Translate input:', translateFileInput);
-    
+
     if (summarizeFileInput) {
-        summarizeFileInput.addEventListener('change', async function(e) {
+        summarizeFileInput.addEventListener('change', async function (e) {
             console.log('[Summarize] File selected');
             const file = e.target.files[0];
             if (!file) return;
@@ -1081,9 +1040,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     if (translateFileInput) {
-        translateFileInput.addEventListener('change', async function(e) {
+        translateFileInput.addEventListener('change', async function (e) {
             console.log('[Translate] File selected');
             const file = e.target.files[0];
             if (!file) return;
@@ -1170,20 +1129,20 @@ async function processUploadedFile(file) {
 
 
 // Audio Resume Playback Feature
-(function() {
+(function () {
     console.log('[AudioResume] Initializing audio resume playback');
-    
+
     // Track all audio elements
     const audioElements = new Map();
-    
+
     // Save position to server
     async function saveAudioPosition(audioId, position) {
         try {
             console.log(`[AudioResume] Saving position for audio ${audioId}: ${position}s`);
             await apiRequest(`${API_BASE}/history.php?action=update-position`, {
                 method: 'POST',
-                body: JSON.stringify({ 
-                    id: audioId, 
+                body: JSON.stringify({
+                    id: audioId,
                     type: 'tts',
                     position: Math.floor(position)
                 })
@@ -1192,30 +1151,30 @@ async function processUploadedFile(file) {
             console.error('[AudioResume] Failed to save position:', error);
         }
     }
-    
+
     // Initialize audio element with saved position
     function initAudioElement(audio) {
         const audioId = parseInt(audio.dataset.audioId);
         const savedPosition = parseInt(audio.dataset.savedPosition) || 0;
-        
+
         if (!audioId) return;
-        
+
         console.log(`[AudioResume] Init audio ${audioId}, saved position: ${savedPosition}s`);
-        
+
         // Store reference
         audioElements.set(audioId, audio);
-        
+
         // Set saved position when metadata is loaded
-        audio.addEventListener('loadedmetadata', function() {
+        audio.addEventListener('loadedmetadata', function () {
             if (savedPosition > 0 && savedPosition < audio.duration) {
                 audio.currentTime = savedPosition;
                 console.log(`[AudioResume] Resumed audio ${audioId} at ${savedPosition}s`);
             }
         }, { once: true });
-        
+
         // Save position every 5 seconds while playing
         let saveInterval;
-        audio.addEventListener('play', function() {
+        audio.addEventListener('play', function () {
             console.log(`[AudioResume] Audio ${audioId} started playing`);
             saveInterval = setInterval(() => {
                 if (!audio.paused && audio.currentTime > 0) {
@@ -1223,39 +1182,39 @@ async function processUploadedFile(file) {
                 }
             }, 5000);
         });
-        
+
         // Save position when paused
-        audio.addEventListener('pause', function() {
+        audio.addEventListener('pause', function () {
             console.log(`[AudioResume] Audio ${audioId} paused at ${audio.currentTime}s`);
             clearInterval(saveInterval);
             if (audio.currentTime > 0 && audio.currentTime < audio.duration) {
                 saveAudioPosition(audioId, audio.currentTime);
             }
         });
-        
+
         // Reset position when ended
-        audio.addEventListener('ended', function() {
+        audio.addEventListener('ended', function () {
             console.log(`[AudioResume] Audio ${audioId} ended, resetting position`);
             clearInterval(saveInterval);
             saveAudioPosition(audioId, 0);
         });
     }
-    
+
     // Initialize all audio elements on page
     function initAllAudioElements() {
         const audios = document.querySelectorAll('audio.audio-player[data-audio-id]');
         console.log(`[AudioResume] Found ${audios.length} audio elements`);
         audios.forEach(initAudioElement);
     }
-    
+
     // Save all playing audio positions before page unload
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforeunload', function () {
         console.log('[AudioResume] Page unloading, saving all positions');
         audioElements.forEach((audio, audioId) => {
             if (!audio.paused && audio.currentTime > 0) {
                 // Use sendBeacon for reliable save on page unload
-                const data = JSON.stringify({ 
-                    id: audioId, 
+                const data = JSON.stringify({
+                    id: audioId,
                     type: 'tts',
                     position: Math.floor(audio.currentTime)
                 });
@@ -1263,9 +1222,9 @@ async function processUploadedFile(file) {
             }
         });
     });
-    
+
     // Save positions when switching tabs (page visibility change)
-    document.addEventListener('visibilitychange', function() {
+    document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             console.log('[AudioResume] Tab hidden, saving all positions');
             audioElements.forEach((audio, audioId) => {
@@ -1275,17 +1234,17 @@ async function processUploadedFile(file) {
             });
         }
     });
-    
+
     // Initialize on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAllAudioElements);
     } else {
         initAllAudioElements();
     }
-    
+
     // Re-initialize when history is loaded (for dynamic content)
     window.addEventListener('historyLoaded', initAllAudioElements);
-    
+
     // Expose function for manual initialization
     window.initAudioResume = initAllAudioElements;
 })();
@@ -1294,7 +1253,7 @@ async function processUploadedFile(file) {
 // Trigger audio resume after history loads
 const originalLoadActivities = window.RecentActivity?.prototype?.loadActivities;
 if (originalLoadActivities) {
-    window.RecentActivity.prototype.loadActivities = async function() {
+    window.RecentActivity.prototype.loadActivities = async function () {
         await originalLoadActivities.call(this);
         // Trigger audio resume initialization
         setTimeout(() => {

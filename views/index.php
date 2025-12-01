@@ -80,7 +80,16 @@ require_once __DIR__ . '/../config/config.php';
                         </div>  
                     </div>
                 </div>
-                <div class="w-full aspect-[4/3] bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-xl shadow-2xl"></div>
+                <div class="w-full aspect-[4/3] rounded-xl shadow-2xl overflow-hidden relative">
+                    <!-- Hero Image -->
+                    <img 
+                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=600&fit=crop&q=80" 
+                        alt="Person using AI voice technology" 
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -145,21 +154,39 @@ require_once __DIR__ . '/../config/config.php';
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div class="flex flex-col gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow">
-                        <div class="h-48 w-full bg-gradient-to-br from-green-400 to-blue-500"></div>
+                        <div class="h-48 w-full overflow-hidden">
+                            <img 
+                                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop&q=80" 
+                                alt="Students learning" 
+                                class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                            />
+                        </div>
                         <div class="p-6 pt-0 flex flex-col gap-2">
                             <h3 class="text-xl font-bold">Giáo dục & Học tập</h3>
                             <p class="text-sm text-gray-600">Tạo tài liệu học tập âm thanh, sách nói cho học sinh hoặc học ngoại ngữ với phát âm chuẩn.</p>
                         </div>
                     </div>
                     <div class="flex flex-col gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow">
-                        <div class="h-48 w-full bg-gradient-to-br from-purple-400 to-pink-500"></div>
+                        <div class="h-48 w-full overflow-hidden">
+                            <img 
+                                src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop&q=80" 
+                                alt="Business team" 
+                                class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                            />
+                        </div>
                         <div class="p-6 pt-0 flex flex-col gap-2">
                             <h3 class="text-xl font-bold">Doanh nghiệp & Marketing</h3>
                             <p class="text-sm text-gray-600">Thuyết minh video quảng cáo, tạo lời chào tổng đài tự động chuyên nghiệp và hấp dẫn.</p>
                         </div>
                     </div>
                     <div class="flex flex-col gap-4 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow">
-                        <div class="h-48 w-full bg-gradient-to-br from-orange-400 to-red-500"></div>
+                        <div class="h-48 w-full overflow-hidden">
+                            <img 
+                                src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=400&fit=crop&q=80" 
+                                alt="Content creator" 
+                                class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                            />
+                        </div>
                         <div class="p-6 pt-0 flex flex-col gap-2">
                             <h3 class="text-xl font-bold">Sáng tạo nội dung</h3>
                             <p class="text-sm text-gray-600">Lồng tiếng cho video YouTube, podcast, hoặc các dự án sáng tạo khác một cách nhanh chóng.</p>

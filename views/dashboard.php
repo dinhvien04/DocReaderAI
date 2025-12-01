@@ -245,14 +245,14 @@ require_once __DIR__ . '/../includes/functions.php';
                                 <input type="file" id="summarize-file-input" accept=".pdf,.txt,.doc,.docx" class="hidden">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-2xl">📄</span>
+                                        <span class="text-2xl"></span>
                                         <span class="font-semibold text-gray-700">Upload file để trích xuất văn bản</span>
                                     </div>
                                     <button onclick="document.getElementById('summarize-file-input').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
                                         Chọn file
                                     </button>
                                 </div>
-                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ PDF, TXT, DOCX (tối đa 10MB)</p>
+                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ TXT(tối đa 10MB)</p>
                                 <p id="summarize-file-name" class="text-sm text-green-600 mt-2 hidden"></p>
                             </div>
                             
@@ -268,9 +268,14 @@ require_once __DIR__ . '/../includes/functions.php';
                                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                     <p id="summary-text" class="text-gray-800"></p>
                                 </div>
-                                <button onclick="copyToClipboard(document.getElementById('summary-text').textContent)" class="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
-                                    📋 Copy
-                                </button>
+                                <div class="mt-2 flex gap-2">
+                                    <button onclick="copyToClipboard(document.getElementById('summary-text').textContent)" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                        📋 Copy
+                                    </button>
+                                    <button onclick="downloadAsText(document.getElementById('summary-text').textContent, 'tom-tat.txt')" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                        💾 Tải về TXT
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -296,14 +301,14 @@ require_once __DIR__ . '/../includes/functions.php';
                                 <input type="file" id="translate-file-input" accept=".pdf,.txt,.doc,.docx" class="hidden">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-2xl">📄</span>
+                                        <span class="text-2xl"></span>
                                         <span class="font-semibold text-gray-700">Upload file để trích xuất văn bản</span>
                                     </div>
                                     <button onclick="document.getElementById('translate-file-input').click()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
                                         Chọn file
                                     </button>
                                 </div>
-                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ PDF, TXT, DOCX (tối đa 10MB)</p>
+                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ TXT(tối đa 10MB)</p>
                                 <p id="translate-file-name" class="text-sm text-green-600 mt-2 hidden"></p>
                             </div>
                             
@@ -330,9 +335,14 @@ require_once __DIR__ . '/../includes/functions.php';
                                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                     <p id="translated-text" class="text-gray-800"></p>
                                 </div>
-                                <button onclick="copyToClipboard(document.getElementById('translated-text').textContent)" class="mt-2 text-purple-600 hover:text-purple-700 text-sm font-medium">
-                                     Copy
-                                </button>
+                                <div class="mt-2 flex gap-2">
+                                    <button onclick="copyToClipboard(document.getElementById('translated-text').textContent)" class="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                                        📋 Copy
+                                    </button>
+                                    <button onclick="downloadAsText(document.getElementById('translated-text').textContent, 'dich-thuat.txt')" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                        💾 Tải về TXT
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -713,6 +723,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+/**
+ * Download text content as a file
+ */
+function downloadAsText(text, filename = 'download.txt') {
+    if (!text) {
+        showToast('Không có nội dung để tải về', 'error');
+        return;
+    }
+    
+    try {
+        // Create a Blob with the text content
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        
+        // Create a temporary download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        
+        // Cleanup
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        
+        showToast('Đã tải file thành công', 'success');
+    } catch (error) {
+        console.error('Download error:', error);
+        showToast('Không thể tải file: ' + error.message, 'error');
+    }
+}
 </script>
 
 <style>
@@ -734,6 +777,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="<?= BASE_URL ?>/assets/js/auth.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/dashboard.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/tts.js"></script>
+<!-- TTS Double Click Fix - Load last to override existing handlers -->
+<script src="<?= BASE_URL ?>/assets/js/tts-fix.js?v=<?= time() ?>"></script>
 
 </body>
 </html>
