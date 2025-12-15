@@ -31,8 +31,22 @@ class MegaLLMService {
             $lang = $this->detectLanguage($text);
         }
         
-        // Use prompt that preserves original language
-        $prompt = "Summarize the following text concisely in the SAME LANGUAGE as the original text. Keep the summary in the original language, do not translate:\n\n{$text}";
+        // Language names for clearer instructions
+        $langNames = [
+            'vi' => 'Vietnamese',
+            'en' => 'English',
+            'fr' => 'French',
+            'de' => 'German',
+            'es' => 'Spanish',
+            'ja' => 'Japanese',
+            'ko' => 'Korean',
+            'zh' => 'Chinese'
+        ];
+        
+        $langName = $langNames[$lang] ?? 'the same language as the input';
+        
+        // Use explicit language instruction in prompt
+        $prompt = "Summarize the following text concisely. IMPORTANT: The summary MUST be written in {$langName}. Do NOT translate to any other language. Only output the summary, nothing else.\n\nText to summarize:\n{$text}";
         
         return $this->chat($prompt);
     }

@@ -85,6 +85,18 @@ function handleTranslate($megaLLM, $input) {
     $text = $input['text'];
     $targetLang = $input['targetLang'];
     
+    // Validate text length (max 10000 characters)
+    $textLength = mb_strlen($text, 'UTF-8');
+    if ($textLength > 10000) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => "Văn bản vượt quá 10000 ký tự (hiện tại: {$textLength} ký tự)",
+            'code' => 'TEXT_TOO_LONG'
+        ]);
+        return;
+    }
+    
     // Validate target language
     $allowedLanguages = ['en', 'vi', 'ja', 'ko', 'zh', 'fr', 'de', 'es'];
     if (!in_array($targetLang, $allowedLanguages)) {

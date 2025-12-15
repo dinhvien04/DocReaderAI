@@ -170,7 +170,7 @@ class RecentActivity {
 
         try {
             // Use new unified history API for TTS only
-            const response = await apiRequest(`${API_BASE}/history.php?action=list&type=tts&limit=10`);
+            const response = await apiRequest(`${API_BASE}/history.php?action=list&type=tts&limit=1000`);
 
             if (response.success && response.data.items) {
                 if (response.data.items.length === 0) {
@@ -1034,6 +1034,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const fileType = file.name.split('.').pop().toLowerCase();
             const textArea = document.getElementById('summarize-text');
             const fileName = document.getElementById('summarize-file-name');
+            const charCount = document.getElementById('summarize-char-count');
+            const maxLength = 10000;
 
             if (!['pdf', 'txt', 'doc', 'docx'].includes(fileType)) {
                 showToast('Chỉ chấp nhận file PDF, TXT, DOC, DOCX', 'error');
@@ -1046,11 +1048,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
-                const text = await processUploadedFile(file);
+                let text = await processUploadedFile(file);
+                
+                // Truncate if exceeds max length
+                let truncated = false;
+                if (text.length > maxLength) {
+                    text = text.substring(0, maxLength);
+                    truncated = true;
+                }
 
                 if (textArea) {
                     textArea.value = text;
-                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                    if (truncated) {
+                        showToast(`Văn bản đã được cắt còn ${maxLength} ký tự`, 'warning');
+                    } else {
+                        showToast('Đã trích xuất văn bản từ file!', 'success');
+                    }
+                }
+                
+                // Update character counter
+                if (charCount) {
+                    charCount.textContent = `${text.length} / ${maxLength}`;
                 }
 
                 if (fileName) {
@@ -1079,6 +1097,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const fileType = file.name.split('.').pop().toLowerCase();
             const textArea = document.getElementById('translate-text');
             const fileName = document.getElementById('translate-file-name');
+            const charCount = document.getElementById('translate-char-count');
+            const maxLength = 10000;
 
             if (!['pdf', 'txt', 'doc', 'docx'].includes(fileType)) {
                 showToast('Chỉ chấp nhận file PDF, TXT, DOC, DOCX', 'error');
@@ -1091,11 +1111,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
-                const text = await processUploadedFile(file);
+                let text = await processUploadedFile(file);
+                
+                // Truncate if exceeds max length
+                let truncated = false;
+                if (text.length > maxLength) {
+                    text = text.substring(0, maxLength);
+                    truncated = true;
+                }
 
                 if (textArea) {
                     textArea.value = text;
-                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                    if (truncated) {
+                        showToast(`Văn bản đã được cắt còn ${maxLength} ký tự`, 'warning');
+                    } else {
+                        showToast('Đã trích xuất văn bản từ file!', 'success');
+                    }
+                }
+                
+                // Update character counter
+                if (charCount) {
+                    charCount.textContent = `${text.length} / ${maxLength}`;
                 }
 
                 if (fileName) {

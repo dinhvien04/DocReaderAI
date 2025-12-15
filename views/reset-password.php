@@ -245,7 +245,15 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             await resetPassword(resetEmail, resetOtp, password);
         } catch (error) {
-            // Error handled
+            // Nếu OTP sai hoặc hết hạn, quay lại bước 2 để nhập lại
+            if (error.message.includes('OTP') || error.message.includes('hết hạn') || error.message.includes('INVALID_OTP')) {
+                toggleElement(document.getElementById('reset-step-3'), false);
+                toggleElement(document.getElementById('reset-step-2'), true);
+                document.getElementById('reset-progress-3').classList.add('opacity-50');
+                document.getElementById('reset-progress-2').classList.remove('opacity-50');
+                document.getElementById('reset-otp').value = '';
+                resetOtp = '';
+            }
         } finally {
             setLoading(btn, false);
         }

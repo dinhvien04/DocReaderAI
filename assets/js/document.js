@@ -510,24 +510,53 @@ function handleSummarizeFileUpload() {
 
                 if (fileType === 'pdf') {
                     showToast('Đang đọc file PDF...', 'info');
-                    text = await extractTextFromPDF(file);
+                    // Use global function from dashboard.php
+                    if (typeof window.extractTextFromPDF === 'function') {
+                        text = await window.extractTextFromPDF(file);
+                    } else {
+                        throw new Error('PDF reader not available');
+                    }
                 } else if (fileType === 'doc' || fileType === 'docx') {
                     showToast('Đang đọc file Word...', 'info');
-                    text = await extractTextFromWord(file);
+                    // Use global function from dashboard.php
+                    if (typeof window.extractTextFromWord === 'function') {
+                        text = await window.extractTextFromWord(file);
+                    } else {
+                        throw new Error('Word reader not available');
+                    }
                 } else {
                     text = await file.text();
                 }
 
                 const textArea = document.getElementById('summarize-text');
                 const fileName = document.getElementById('summarize-file-name');
+                const charCount = document.getElementById('summarize-char-count');
+
+                // Truncate text if exceeds 10000 characters
+                const maxLength = 10000;
+                let truncated = false;
+                if (text.length > maxLength) {
+                    text = text.substring(0, maxLength);
+                    truncated = true;
+                }
 
                 if (textArea) {
                     textArea.value = text;
-                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                    if (truncated) {
+                        showToast(`Văn bản đã được cắt còn ${maxLength} ký tự`, 'warning');
+                    } else {
+                        showToast('Đã trích xuất văn bản từ file!', 'success');
+                    }
+                }
+
+                // Update character counter
+                if (charCount) {
+                    charCount.textContent = `${text.length} / ${maxLength}`;
                 }
 
                 if (fileName) {
                     fileName.textContent = `Đã tải: ${file.name}`;
+                    fileName.classList.remove('hidden');
                 }
 
                 // Reset file input
@@ -535,7 +564,7 @@ function handleSummarizeFileUpload() {
 
             } catch (error) {
                 console.error('Process file error:', error);
-                showToast('Không thể đọc file', 'error');
+                showToast(error.message || 'Không thể đọc file', 'error');
             }
         }
     });
@@ -569,24 +598,53 @@ function handleTranslateFileUpload() {
 
                 if (fileType === 'pdf') {
                     showToast('Đang đọc file PDF...', 'info');
-                    text = await extractTextFromPDF(file);
+                    // Use global function from dashboard.php
+                    if (typeof window.extractTextFromPDF === 'function') {
+                        text = await window.extractTextFromPDF(file);
+                    } else {
+                        throw new Error('PDF reader not available');
+                    }
                 } else if (fileType === 'doc' || fileType === 'docx') {
                     showToast('Đang đọc file Word...', 'info');
-                    text = await extractTextFromWord(file);
+                    // Use global function from dashboard.php
+                    if (typeof window.extractTextFromWord === 'function') {
+                        text = await window.extractTextFromWord(file);
+                    } else {
+                        throw new Error('Word reader not available');
+                    }
                 } else {
                     text = await file.text();
                 }
 
                 const textArea = document.getElementById('translate-text');
                 const fileName = document.getElementById('translate-file-name');
+                const charCount = document.getElementById('translate-char-count');
+
+                // Truncate text if exceeds 10000 characters
+                const maxLength = 10000;
+                let truncated = false;
+                if (text.length > maxLength) {
+                    text = text.substring(0, maxLength);
+                    truncated = true;
+                }
 
                 if (textArea) {
                     textArea.value = text;
-                    showToast('Đã trích xuất văn bản từ file!', 'success');
+                    if (truncated) {
+                        showToast(`Văn bản đã được cắt còn ${maxLength} ký tự`, 'warning');
+                    } else {
+                        showToast('Đã trích xuất văn bản từ file!', 'success');
+                    }
+                }
+
+                // Update character counter
+                if (charCount) {
+                    charCount.textContent = `${text.length} / ${maxLength}`;
                 }
 
                 if (fileName) {
                     fileName.textContent = `Đã tải: ${file.name}`;
+                    fileName.classList.remove('hidden');
                 }
 
                 // Reset file input

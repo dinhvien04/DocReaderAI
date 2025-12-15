@@ -275,13 +275,16 @@ require_once __DIR__ . '/../includes/functions.php';
                                         Chọn file
                                     </button>
                                 </div>
-                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ TXT(tối đa 10MB)</p>
+                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ PDF, TXT, DOC, DOCX (tối đa 10MB)</p>
                                 <p id="summarize-file-name" class="text-sm text-green-600 mt-2 hidden"></p>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Văn bản</label>
-                                <textarea id="summarize-text" rows="8" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Dán văn bản cần tóm tắt hoặc upload file..."></textarea>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-sm font-medium text-gray-700">Văn bản</label>
+                                    <span id="summarize-char-count" class="text-sm text-gray-500">0 / 10000</span>
+                                </div>
+                                <textarea id="summarize-text" rows="8" maxlength="10000" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Dán văn bản cần tóm tắt hoặc upload file (tối đa 10000 ký tự)..."></textarea>
                             </div>
                             <button id="summarize-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition">
                                 Tóm tắt
@@ -331,13 +334,16 @@ require_once __DIR__ . '/../includes/functions.php';
                                         Chọn file
                                     </button>
                                 </div>
-                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ TXT(tối đa 10MB)</p>
+                                <p class="text-xs text-gray-600 mt-2">Hỗ trợ PDF, TXT, DOC, DOCX (tối đa 10MB)</p>
                                 <p id="translate-file-name" class="text-sm text-green-600 mt-2 hidden"></p>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Văn bản gốc</label>
-                                <textarea id="translate-text" rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Nhập văn bản cần dịch hoặc upload file..."></textarea>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-sm font-medium text-gray-700">Văn bản gốc</label>
+                                    <span id="translate-char-count" class="text-sm text-gray-500">0 / 10000</span>
+                                </div>
+                                <textarea id="translate-text" rows="6" maxlength="10000" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Nhập văn bản cần dịch hoặc upload file (tối đa 10000 ký tự)..."></textarea>
                             </div>
                             <div class="flex items-center gap-2">
                                 <select id="source-lang" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
@@ -531,6 +537,40 @@ document.addEventListener('click', function(event) {
 
 // Initialize dashboard functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for summarize textarea
+    const summarizeText = document.getElementById('summarize-text');
+    const summarizeCharCount = document.getElementById('summarize-char-count');
+    if (summarizeText && summarizeCharCount) {
+        summarizeText.addEventListener('input', function() {
+            const length = this.value.length;
+            summarizeCharCount.textContent = `${length} / 10000`;
+            if (length > 10000) {
+                summarizeCharCount.classList.add('text-red-500');
+                summarizeCharCount.classList.remove('text-gray-500');
+            } else {
+                summarizeCharCount.classList.remove('text-red-500');
+                summarizeCharCount.classList.add('text-gray-500');
+            }
+        });
+    }
+    
+    // Character counter for translate textarea
+    const translateText = document.getElementById('translate-text');
+    const translateCharCount = document.getElementById('translate-char-count');
+    if (translateText && translateCharCount) {
+        translateText.addEventListener('input', function() {
+            const length = this.value.length;
+            translateCharCount.textContent = `${length} / 10000`;
+            if (length > 10000) {
+                translateCharCount.classList.add('text-red-500');
+                translateCharCount.classList.remove('text-gray-500');
+            } else {
+                translateCharCount.classList.remove('text-red-500');
+                translateCharCount.classList.add('text-gray-500');
+            }
+        });
+    }
+    
     // Handle speed slider
     const speedInput = document.getElementById('speed-input');
     const speedDisplay = document.getElementById('speed-display');
@@ -738,9 +778,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Make functions global by assigning to window
+    window.extractTextFromPDF = extractTextFromPDF;
+    window.extractTextFromWord = extractTextFromWord;
+    window.loadPDFJS = loadPDFJS;
+    window.loadMammoth = loadMammoth;
+
     // Extract text from PDF
     async function extractTextFromPDF(file) {
         try {
+            // Ensure PDF.js is loaded
+            if (typeof pdfjsLib === 'undefined') {
+                console.log('Loading PDF.js...');
+                await loadPDFJS();
+            }
+            
             const arrayBuffer = await file.arrayBuffer();
             console.log('PDF arrayBuffer size:', arrayBuffer.byteLength);
             
@@ -774,7 +826,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+            // Use jsdelivr CDN which is more reliable
+            script.src = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';
             script.onload = () => {
                 console.log('Mammoth.js loaded successfully');
                 resolve();
@@ -790,14 +843,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Extract text from Word document
     async function extractTextFromWord(file) {
         try {
+            // Ensure Mammoth.js is loaded
+            if (typeof mammoth === 'undefined') {
+                console.log('Loading Mammoth.js...');
+                await loadMammoth();
+            }
+            
+            // Check file extension
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.docx')) {
+                // .doc files (old format) are not supported by Mammoth
+                if (fileName.endsWith('.doc')) {
+                    throw new Error('File .doc (Word 97-2003) không được hỗ trợ. Vui lòng chuyển sang định dạng .docx');
+                }
+            }
+            
             const arrayBuffer = await file.arrayBuffer();
             console.log('Word arrayBuffer size:', arrayBuffer.byteLength);
+            
+            // Validate file is not empty
+            if (arrayBuffer.byteLength === 0) {
+                throw new Error('File Word trống');
+            }
             
             const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
             console.log('Word text extracted, length:', result.value.length);
             
             if (result.messages && result.messages.length > 0) {
                 console.log('Mammoth messages:', result.messages);
+            }
+            
+            if (!result.value || result.value.trim().length === 0) {
+                throw new Error('Không tìm thấy văn bản trong file Word');
             }
             
             return result.value.trim();

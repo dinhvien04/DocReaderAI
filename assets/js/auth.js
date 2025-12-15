@@ -54,6 +54,8 @@ async function login(identifier, password) {
         return response;
     } catch (error) {
         console.error('Login error:', error);
+        // Hiển thị thông báo lỗi trên UI
+        showToast(error.message || 'Username/Email hoặc mật khẩu không đúng', 'error');
         throw error;
     }
 }
@@ -155,6 +157,12 @@ async function resetPassword(email, otp, password) {
         return response;
     } catch (error) {
         console.error('Reset password error:', error);
+        // Hiển thị thông báo lỗi OTP
+        if (error.message.includes('OTP') || error.message.includes('hết hạn')) {
+            showToast('OTP không đúng hoặc đã hết hạn', 'error');
+        } else {
+            showToast(error.message || 'Không thể đặt lại mật khẩu', 'error');
+        }
         throw error;
     }
 }
