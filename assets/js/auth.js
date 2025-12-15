@@ -164,6 +164,12 @@ async function resetPassword(email, otp, password) {
  */
 async function logout() {
     try {
+        // Lưu position của tất cả audio trước khi logout
+        if (window.audioTracker) {
+            window.audioTracker.saveOnLogout();
+            console.log('[Auth] Saved all audio positions before logout');
+        }
+        
         await apiRequest(`${API_BASE}/auth.php?action=logout`, {
             method: 'POST'
         });

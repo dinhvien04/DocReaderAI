@@ -22,15 +22,35 @@ class MegaLLMService {
     /**
      * Summarize text using MegaLLM
      * @param string $text Text to summarize
-     * @param string $lang Language (vi or en)
+     * @param string $lang Language (vi, en, or auto to detect)
      * @return string Summarized text
      */
-    public function summarize($text, $lang = 'vi') {
-        $prompt = $lang === 'vi' 
-            ? "Hãy tóm tắt văn bản sau một cách ngắn gọn và súc tích:\n\n{$text}"
-            : "Please summarize the following text concisely:\n\n{$text}";
+    public function summarize($text, $lang = 'auto') {
+        // Auto-detect language if not specified
+        if ($lang === 'auto') {
+            $lang = $this->detectLanguage($text);
+        }
+        
+        // Use prompt that preserves original language
+        $prompt = "Summarize the following text concisely in the SAME LANGUAGE as the original text. Keep the summary in the original language, do not translate:\n\n{$text}";
         
         return $this->chat($prompt);
+    }
+    
+    /**
+     * Detect language of text (simple detection)
+     * @param string $text Text to detect
+     * @return string Language code (vi or en)
+     */
+    private function detectLanguage($text) {
+        // Vietnamese characters pattern
+        $vietnamesePattern = '/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/ui';
+        
+        if (preg_match($vietnamesePattern, $text)) {
+            return 'vi';
+        }
+        
+        return 'en';
     }
     
     /**

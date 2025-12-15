@@ -46,7 +46,7 @@ require_once __DIR__ . '/../../includes/header.php';
             <canvas id="userGrowthChart"></canvas>
         </div>
         <div class="bg-white rounded-lg shadow-lg p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Xu hướng chuyển đổi</h3>
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Comming soon</h3>
             <canvas id="conversionChart"></canvas>
         </div>
     </div>
@@ -54,7 +54,7 @@ require_once __DIR__ . '/../../includes/header.php';
     <!-- Quick Actions -->
     <div class="bg-white rounded-lg shadow-lg p-6">
         <h3 class="text-lg font-bold text-gray-900 mb-4">Thao tác nhanh</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <a href="<?= BASE_URL ?>/admin-users" class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition">
                 <span class="text-3xl">👥</span>
                 <div>
@@ -62,6 +62,7 @@ require_once __DIR__ . '/../../includes/header.php';
                     <p class="text-sm text-gray-500">Xem và quản lý người dùng</p>
                 </div>
             </a>
+
             <a href="<?= BASE_URL ?>/admin-config" class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition">
                 <span class="text-3xl">⚙️</span>
                 <div>

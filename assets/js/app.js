@@ -125,7 +125,7 @@ async function apiRequest(url, options = {}) {
             stack: error.stack,
             browser: browser.name
         });
-        showToast(error.message, 'error');
+        // Don't show toast here - let the caller handle it to avoid duplicate toasts
         throw error;
     }
 }

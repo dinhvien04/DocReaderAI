@@ -323,13 +323,13 @@ function renderCharts(data) {
             type: 'bar',
             data: {
                 labels: data.dates,
-                datasets: [{
-                    label: 'Số lượng chuyển đổi',
-                    data: data.conversionCounts,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgb(54, 162, 235)',
-                    borderWidth: 1
-                }]
+                // datasets: [{
+                //     label: 'Số lượng chuyển đổi',
+                //     data: data.conversionCounts,
+                //     backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                //     borderColor: 'rgb(54, 162, 235)',
+                //     borderWidth: 1
+                // }]
             },
             options: {
                 responsive: true,

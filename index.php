@@ -66,6 +66,11 @@ switch ($page) {
         include __DIR__ . '/views/change-password.php';
         break;
     
+    // Demo pages
+    case 'demo-audio':
+        include __DIR__ . '/views/demo-audio-position.php';
+        break;
+    
     // Admin pages (require admin role)
     case 'admin':
         include __DIR__ . '/views/admin/index.php';

@@ -32,7 +32,7 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 define('BASE_URL', $_ENV['BASE_URL'] ?? 'http://localhost/KK');
 define('UPLOAD_DIR', __DIR__ . '/../uploads/');
 define('MAX_FILE_SIZE', 10485760); // 10MB in bytes
-define('MAX_TEXT_LENGTH', 5000);
+define('MAX_TEXT_LENGTH', 5000); // Max 5000 characters (Edge-TTS/gTTS limit)
 define('OTP_EXPIRY_MINUTES', 10);
 define('SESSION_TIMEOUT', 1800); // 30 minutes in seconds
 

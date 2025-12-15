@@ -60,7 +60,7 @@ require_once __DIR__ . '/../config/config.php';
                 <div class="flex flex-col gap-8 text-center lg:text-left">
                     <div class="flex flex-col gap-4">
                         <h1 class="text-4xl lg:text-6xl font-black leading-tight tracking-tighter">
-                            Biến văn bản thành giọng nói tự nhiên và truyền cảm
+                            Chuyển văn bản thành giọng nói tự nhiên và truyền cảm
                         </h1>
                         <p class="text-base lg:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0">
                             Trải nghiệm công nghệ Azure Speech AI tiên tiến để tạo ra âm thanh chất lượng cao cho mọi nhu cầu của bạn.
@@ -93,7 +93,6 @@ require_once __DIR__ . '/../config/config.php';
             </div>
         </div>
     </section>
-
     <!-- Features Section -->
     <section id="features" class="py-20 sm:py-24 bg-gray-50">
         <div class="container mx-auto px-4">

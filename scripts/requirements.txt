@@ -1,0 +1,16 @@
+# Python dependencies for TTS
+# Install with: pip install -r requirements.txt
+
+# Edge Text-to-Speech (Free - High Quality) - RECOMMENDED
+edge-tts>=7.2.0
+
+# Google Text-to-Speech (Free - Backup)
+gtts>=2.3.0
+
+# Audio processing (for speed adjustment with gTTS)
+pydub>=0.25.0
+
+# Note: pydub requires ffmpeg to be installed on the system (only for gTTS speed adjustment)
+# Ubuntu/Debian: sudo apt-get install ffmpeg
+# macOS: brew install ffmpeg
+# Windows: Download from https://ffmpeg.org/download.html

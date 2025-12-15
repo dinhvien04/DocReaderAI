@@ -27,11 +27,12 @@ class AzureSpeechService {
      */
     public function textToSpeech(string $text, string $voice = 'vi-VN-HoaiMyNeural', float $rate = 1.0, string $format = 'audio-24khz-48kbitrate-mono-mp3'): array {
         try {
-            // Validate text length
-            if (strlen($text) > MAX_TEXT_LENGTH) {
+            // Validate text length (use mb_strlen for UTF-8 characters)
+            $textLength = mb_strlen($text, 'UTF-8');
+            if ($textLength > MAX_TEXT_LENGTH) {
                 return [
                     'success' => false,
-                    'error' => 'Text exceeds maximum length of ' . MAX_TEXT_LENGTH . ' characters'
+                    'error' => 'Text exceeds maximum length of ' . MAX_TEXT_LENGTH . ' characters (current: ' . $textLength . ')'
                 ];
             }
             

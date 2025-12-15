@@ -66,23 +66,24 @@ function handleSummarize() {
         $input = json_decode(file_get_contents('php://input'), true);
         
         if (!isset($input['text']) || empty(trim($input['text']))) {
-            throw new Exception('Text is required');
+            throw new Exception('Vui lòng nhập văn bản cần tóm tắt');
         }
         
         $text = trim($input['text']);
         
-        // Validate text length
-        if (strlen($text) < 100) {
-            throw new Exception('Text is too short to summarize (minimum 100 characters)');
+        // Validate text length (use mb_strlen for UTF-8)
+        $textLength = mb_strlen($text, 'UTF-8');
+        if ($textLength < 100) {
+            throw new Exception('Văn bản quá ngắn để tóm tắt (tối thiểu 100 ký tự)');
         }
         
-        if (strlen($text) > 10000) {
-            throw new Exception('Text is too long (maximum 10000 characters)');
+        if ($textLength > 10000) {
+            throw new Exception('Văn bản quá dài (tối đa 10000 ký tự)');
         }
         
         // Use MegaLLM API for summarization
         $megaLLM = new MegaLLMService();
-        $summary = $megaLLM->summarize($text, 'vi');
+        $summary = $megaLLM->summarize($text, 'auto');
         
         // Save to summarize_history
         try {
@@ -129,7 +130,7 @@ function handleSummarizeFile() {
     try {
         // Check if file was uploaded
         if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-            throw new Exception('No file uploaded or upload error');
+            throw new Exception('Không có file được tải lên hoặc lỗi upload');
         }
         
         $file = $_FILES['file'];
@@ -141,12 +142,12 @@ function handleSummarizeFile() {
         // Validate file type
         $allowedExtensions = ['txt', 'pdf', 'doc', 'docx'];
         if (!in_array($fileExtension, $allowedExtensions)) {
-            throw new Exception('Invalid file type. Allowed: TXT, PDF, DOC, DOCX');
+            throw new Exception('Định dạng file không hợp lệ. Chỉ hỗ trợ: TXT, PDF, DOC, DOCX');
         }
         
         // Validate file size (max 10MB)
         if ($fileSize > 10 * 1024 * 1024) {
-            throw new Exception('File too large (max 10MB)');
+            throw new Exception('File quá lớn (tối đa 10MB)');
         }
         
         // Extract text from file
@@ -157,29 +158,30 @@ function handleSummarizeFile() {
         } elseif ($fileExtension === 'pdf') {
             // For PDF, we'll need to use a library or external tool
             // For now, return error asking user to paste text
-            throw new Exception('PDF file support coming soon. Please copy and paste the text.');
+            throw new Exception('Tính năng đọc PDF sắp ra mắt. Vui lòng copy và paste văn bản.');
         } elseif (in_array($fileExtension, ['doc', 'docx'])) {
             // For DOC/DOCX, we'll need a library
-            throw new Exception('DOC/DOCX file support coming soon. Please copy and paste the text.');
+            throw new Exception('Tính năng đọc DOC/DOCX sắp ra mắt. Vui lòng copy và paste văn bản.');
         }
         
         // Validate extracted text
         if (empty(trim($text))) {
-            throw new Exception('Could not extract text from file');
+            throw new Exception('Không thể trích xuất văn bản từ file');
         }
         
-        if (strlen($text) < 100) {
-            throw new Exception('Text is too short to summarize (minimum 100 characters)');
+        $textLength = mb_strlen($text, 'UTF-8');
+        if ($textLength < 100) {
+            throw new Exception('Văn bản quá ngắn để tóm tắt (tối thiểu 100 ký tự)');
         }
         
-        if (strlen($text) > 10000) {
+        if ($textLength > 10000) {
             // Truncate if too long
-            $text = substr($text, 0, 10000);
+            $text = mb_substr($text, 0, 10000, 'UTF-8');
         }
         
         // Use MegaLLM API for summarization
         $megaLLM = new MegaLLMService();
-        $summary = $megaLLM->summarize($text, 'vi');
+        $summary = $megaLLM->summarize($text, 'auto');
         
         // Save to summarize_history
         try {

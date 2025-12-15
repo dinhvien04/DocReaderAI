@@ -78,11 +78,24 @@
                 console.log('[TTS-Fix] Audio URL:', response.data?.audio_url);
                 
                 if (response.success && response.data.audio_url) {
-                    console.log('[TTS-Fix] Conversion successful, audio_id:', response.data.audio_id);
+                    const audioId = response.data.audio_id;
+                    console.log('[TTS-Fix] Conversion successful, audio_id:', audioId);
                     
                     if (audioPlayer) {
+                        // Lưu position của audio cũ trước khi chuyển sang audio mới
+                        if (window.audioTracker && audioPlayer.dataset.audioId) {
+                            window.audioTracker.saveOnSwitchAudio(parseInt(audioPlayer.dataset.audioId));
+                        }
+                        
                         audioPlayer.src = response.data.audio_url;
+                        audioPlayer.dataset.audioId = audioId; // Lưu audio ID vào dataset
                         audioPlayer.classList.remove('hidden');
+                        
+                        // Đăng ký tracking cho audio mới
+                        if (window.audioTracker && audioId) {
+                            window.audioTracker.track(audioPlayer, audioId, 'tts');
+                            console.log('[TTS-Fix] Registered audio tracking for ID:', audioId);
+                        }
                         
                         try {
                             await audioPlayer.play();

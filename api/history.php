@@ -63,7 +63,8 @@ function handleList($db, $userId) {
     // Get parameters
     $type = $_GET['type'] ?? 'all';
     $page = max(1, intval($_GET['page'] ?? 1));
-    $limit = max(1, min(100, intval($_GET['limit'] ?? 20)));
+    // Allow up to 10000 records (effectively unlimited for most users)
+    $limit = max(1, min(10000, intval($_GET['limit'] ?? 20)));
     $offset = ($page - 1) * $limit;
     
     // Validate type parameter

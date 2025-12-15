@@ -11,11 +11,12 @@ class Database {
     private function __construct() {
         try {
             $host = $_ENV['DB_HOST'] ?? 'localhost';
+            $port = $_ENV['DB_PORT'] ?? '3306';
             $dbname = $_ENV['DB_NAME'] ?? 'docreader_ai_studio';
             $username = $_ENV['DB_USER'] ?? 'root';
             $password = $_ENV['DB_PASS'] ?? '';
             
-            $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
+            $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
             
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

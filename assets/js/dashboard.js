@@ -3,6 +3,24 @@
  * Handles all dashboard card interactions and recent activity
  */
 
+/**
+ * Handle audio play event - pause other audios and save their positions
+ * @param {number} audioId - ID of the audio being played
+ */
+window.handleAudioPlay = function(audioId) {
+    console.log(`[Dashboard] Audio ${audioId} started playing`);
+    
+    // Ưu tiên sử dụng AudioPlayerManager mới
+    if (window.audioManager) {
+        // AudioManager tự động xử lý pause others trong onPlay
+        console.log(`[Dashboard] AudioManager handling play for ${audioId}`);
+    }
+    // Fallback về AudioPositionTracker cũ
+    else if (window.audioTracker) {
+        window.audioTracker.saveOnPlayAnother(audioId);
+    }
+}
+
 // Quick Access Cards Management
 class QuickAccessCards {
     constructor() {
@@ -275,6 +293,7 @@ class RecentActivity {
                         preload="metadata"
                         data-audio-id="${activity.id}"
                         data-saved-position="${activity.position || 0}"
+                        onplay="handleAudioPlay(${activity.id})"
                     >
                         <source src="${audioUrl}" type="audio/mpeg">
                         Trình duyệt không hỗ trợ audio
@@ -294,68 +313,77 @@ class RecentActivity {
     }
 
     attachEventListeners() {
-        // Attach event listeners to all audio elements
+        // Sử dụng AudioPlayerManager (mới) hoặc AudioPositionTracker (cũ)
         const audioElements = document.querySelectorAll('audio[data-audio-id]');
 
         audioElements.forEach(audio => {
             const audioId = parseInt(audio.dataset.audioId);
             const savedPosition = parseInt(audio.dataset.savedPosition) || 0;
 
-            // Set saved position when metadata is loaded
-            audio.addEventListener('loadedmetadata', () => {
-                if (savedPosition > 0 && savedPosition < audio.duration) {
-                    audio.currentTime = savedPosition;
-                    console.log(`Resumed audio ${audioId} at ${savedPosition}s`);
+            // Ưu tiên sử dụng AudioPlayerManager mới
+            if (window.audioManager) {
+                window.audioManager.register(audio, audioId, savedPosition);
+                console.log(`[History] Registered audio ${audioId} with AudioManager, saved position: ${savedPosition}s`);
+            }
+            // Fallback về AudioPositionTracker cũ
+            else if (window.audioTracker) {
+                window.audioTracker.track(audio, audioId, 'history');
+                
+                // Khôi phục position đã lưu
+                if (savedPosition > 0) {
+                    window.audioTracker.restorePosition(audio, savedPosition);
                 }
-            });
-
-            // Save position when paused
-            audio.addEventListener('pause', () => {
-                const currentTime = Math.floor(audio.currentTime);
-                if (currentTime > 0 && currentTime < audio.duration) {
-                    this.savePosition(audioId, currentTime);
-                    console.log(`Saved on pause: ${currentTime}s`);
-                }
-            });
-
-            // Reset position when ended
-            audio.addEventListener('ended', () => {
-                this.savePosition(audioId, 0);
-                console.log(`Audio ended, reset position`);
-            });
-        });
-
-        // Save all audio positions when leaving the page or switching tabs
-        window.addEventListener('beforeunload', () => {
-            audioElements.forEach(audio => {
-                if (!audio.paused && audio.currentTime > 0) {
-                    const audioId = parseInt(audio.dataset.audioId);
-                    const currentTime = Math.floor(audio.currentTime);
-                    // Use sendBeacon for reliable save on page unload
-                    const data = JSON.stringify({ id: audioId, position: currentTime });
-                    navigator.sendBeacon(`${API_BASE}/document.php?action=update-position`, data);
-                }
-            });
-        });
-
-        // Save when switching tabs (page visibility change)
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                audioElements.forEach(audio => {
-                    if (!audio.paused && audio.currentTime > 0) {
-                        const audioId = parseInt(audio.dataset.audioId);
-                        const currentTime = Math.floor(audio.currentTime);
-                        this.savePosition(audioId, currentTime);
-                        console.log(`Saved on tab switch: ${currentTime}s`);
+                
+                console.log(`[History] Registered audio ${audioId} with AudioTracker, saved position: ${savedPosition}s`);
+            } else {
+                // Fallback cuối cùng nếu không có tracker nào
+                console.warn('[History] No audio tracker available, using basic fallback');
+                
+                // Set saved position when metadata is loaded
+                audio.addEventListener('loadedmetadata', () => {
+                    if (savedPosition > 0 && savedPosition < audio.duration) {
+                        audio.currentTime = savedPosition;
+                        console.log(`Resumed audio ${audioId} at ${savedPosition}s`);
                     }
                 });
+
+                // Save position when paused
+                audio.addEventListener('pause', () => {
+                    const currentTime = Math.floor(audio.currentTime);
+                    if (currentTime > 0 && currentTime < audio.duration) {
+                        this.savePosition(audioId, currentTime);
+                        console.log(`Saved on pause: ${currentTime}s`);
+                    }
+                });
+
+                // Reset position when ended
+                audio.addEventListener('ended', () => {
+                    this.savePosition(audioId, 0);
+                    console.log(`Audio ended, reset position`);
+                });
             }
+        });
+
+        // Attach view full text button listeners
+        this.attachViewFullTextListeners();
+    }
+
+    attachViewFullTextListeners() {
+        // Attach click listeners for view full text buttons
+        document.querySelectorAll('.view-full-text-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const text = this.dataset.text;
+                const title = this.dataset.title || 'Văn bản';
+                if (typeof showFullTextModal === 'function') {
+                    showFullTextModal(text, title);
+                }
+            });
         });
     }
 
     async savePosition(audioId, position) {
         try {
-            await apiRequest(`${API_BASE}/document.php?action=update-position`, {
+            await apiRequest(`${API_BASE}/update_position.php`, {
                 method: 'POST',
                 body: JSON.stringify({ id: audioId, position: position })
             });
@@ -402,6 +430,14 @@ let currentHistoryPage = 1;
  */
 window.filterHistory = function (type) {
     console.log('filterHistory called with type:', type);
+
+    // Lưu position trước khi filter - ưu tiên AudioManager
+    if (window.audioManager) {
+        window.audioManager.saveAllPositions('filter');
+        window.audioManager.unregisterAll();
+    } else if (window.audioTracker) {
+        window.audioTracker.saveOnFilter();
+    }
 
     currentHistoryFilter = type;
     currentHistoryPage = 1;
@@ -462,6 +498,14 @@ window.filterHistory = function (type) {
  * Load history from API
  */
 window.loadHistory = async function (type = 'tts', page = 1) {
+    // Lưu position trước khi reload - ưu tiên AudioManager
+    if (window.audioManager) {
+        window.audioManager.saveAllPositions('reload');
+        window.audioManager.unregisterAll();
+    } else if (window.audioTracker) {
+        window.audioTracker.saveOnReload();
+    }
+
     const container = document.getElementById('history-items-container');
     if (!container) return;
 
@@ -705,6 +749,15 @@ window.deleteHistoryItem = async function (id, type) {
         return;
     }
 
+    // Cleanup audio trước khi xóa (nếu là TTS)
+    if (type === 'tts') {
+        if (window.audioManager) {
+            window.audioManager.unregister(id);
+        } else if (window.audioTracker) {
+            window.audioTracker.saveBeforeDelete(id);
+        }
+    }
+
     try {
         const response = await apiRequest(`${API_BASE}/history.php?action=delete`, {
             method: 'POST',
@@ -714,7 +767,11 @@ window.deleteHistoryItem = async function (id, type) {
         if (response.success) {
             showToast('Đã xóa thành công', 'success');
             // Reload current view
-            loadHistory(currentHistoryFilter, currentHistoryPage);
+            if (type === 'tts' && typeof recentActivity !== 'undefined') {
+                recentActivity.loadActivities();
+            } else {
+                loadHistory(currentHistoryFilter, currentHistoryPage);
+            }
         } else {
             showToast(response.error || 'Không thể xóa', 'error');
         }
@@ -722,6 +779,21 @@ window.deleteHistoryItem = async function (id, type) {
         console.error('Delete error:', error);
         showToast('Không thể xóa mục này', 'error');
     }
+}
+
+/**
+ * Go to page with position saving
+ */
+window.goToPage = function(page) {
+    // Lưu position trước khi chuyển trang - ưu tiên AudioManager
+    if (window.audioManager) {
+        window.audioManager.saveAllPositions('pagination');
+        window.audioManager.unregisterAll();
+    } else if (window.audioTracker) {
+        window.audioTracker.saveOnPagination();
+    }
+    currentHistoryPage = page;
+    loadHistory(currentHistoryFilter, page);
 }
 
 /**
@@ -739,7 +811,7 @@ function renderPagination(currentPage, totalPages) {
     // Previous button
     if (currentPage > 1) {
         html += `
-            <button onclick="loadHistory('${currentHistoryFilter}', ${currentPage - 1}); currentHistoryPage = ${currentPage - 1};" 
+            <button onclick="goToPage(${currentPage - 1})" 
                     class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                 Trước
             </button>
@@ -757,7 +829,7 @@ function renderPagination(currentPage, totalPages) {
 
     if (startPage > 1) {
         html += `
-            <button onclick="loadHistory('${currentHistoryFilter}', 1); currentHistoryPage = 1;" 
+            <button onclick="goToPage(1)" 
                     class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                 1
             </button>
@@ -770,7 +842,7 @@ function renderPagination(currentPage, totalPages) {
     for (let i = startPage; i <= endPage; i++) {
         const isActive = i === currentPage;
         html += `
-            <button onclick="loadHistory('${currentHistoryFilter}', ${i}); currentHistoryPage = ${i};" 
+            <button onclick="goToPage(${i})" 
                     class="px-4 py-2 border rounded-lg transition ${isActive
                 ? 'bg-blue-500 text-white border-blue-500'
                 : 'border-gray-300 hover:bg-gray-50'
@@ -785,7 +857,7 @@ function renderPagination(currentPage, totalPages) {
             html += '<span class="px-2 text-gray-500">...</span>';
         }
         html += `
-            <button onclick="loadHistory('${currentHistoryFilter}', ${totalPages}); currentHistoryPage = ${totalPages};" 
+            <button onclick="goToPage(${totalPages})" 
                     class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                 ${totalPages}
             </button>
@@ -795,7 +867,7 @@ function renderPagination(currentPage, totalPages) {
     // Next button
     if (currentPage < totalPages) {
         html += `
-            <button onclick="loadHistory('${currentHistoryFilter}', ${currentPage + 1}); currentHistoryPage = ${currentPage + 1};" 
+            <button onclick="goToPage(${currentPage + 1})" 
                     class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                 Sau
             </button>
