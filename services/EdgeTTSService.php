@@ -211,7 +211,8 @@ class EdgeTTSService {
                 ];
             }
             
-            if (mb_strlen($text, 'UTF-8') > 10000) {
+            $textLength = mb_strlen($text, 'UTF-8');
+            if ($textLength > 10000) {
                 return [
                     'success' => false,
                     'error' => 'Text too long (max 10000 characters)'
@@ -219,39 +220,76 @@ class EdgeTTSService {
             }
             
             // Generate unique filename
-            $filename = 'edge_' . time() . '_' . uniqid() . '.mp3';
+            $uniqueId = time() . '_' . uniqid();
+            $filename = 'edge_' . $uniqueId . '.mp3';
             $outputPath = $this->uploadDir . $filename;
             
-            // Increase execution time for long text
+            // Increase execution time based on text length
+            // Long text needs more time: ~50 chars/second for Edge-TTS
             $oldMaxExecTime = ini_get('max_execution_time');
-            set_time_limit(120); // 2 minutes for long text
+            $estimatedTime = max(180, ceil($textLength / 20) + 60);
+            set_time_limit($estimatedTime);
             
-            // Use base64 encoding to avoid shell escaping issues with Vietnamese text
-            $textBase64 = base64_encode($text);
+            error_log("[Edge-TTS] Text length: $textLength chars, timeout: {$estimatedTime}s");
             
-            // Build command with --base64 flag
-            $command = sprintf(
-                '%s %s --base64 %s %s %s %s 2>&1',
-                escapeshellcmd($this->pythonPath),
-                escapeshellarg($this->scriptPath),
-                escapeshellarg($textBase64),
-                escapeshellarg($outputPath),
-                escapeshellarg($voice),
-                escapeshellarg($speed)
-            );
+            // Check if Python and script exist
+            if (!file_exists($this->scriptPath)) {
+                error_log("[Edge-TTS] Script not found: " . $this->scriptPath);
+                return [
+                    'success' => false,
+                    'error' => 'Edge-TTS script not found'
+                ];
+            }
+            
+            // For long text, write to temp file to avoid command line length limit (Windows 8192 bytes)
+            $textFile = null;
+            if ($textLength > 1000) {
+                $textFile = $this->uploadDir . 'temp_' . $uniqueId . '.txt';
+                file_put_contents($textFile, $text);
+                
+                // Use @file syntax to read from file - combine @ with path before escaping
+                $textArg = '@' . $textFile;
+                $command = sprintf(
+                    '%s %s %s %s %s %s 2>&1',
+                    escapeshellcmd($this->pythonPath),
+                    escapeshellarg($this->scriptPath),
+                    escapeshellarg($textArg),
+                    escapeshellarg($outputPath),
+                    escapeshellarg($voice),
+                    escapeshellarg($speed)
+                );
+                error_log("[Edge-TTS] Using temp file for long text: $textFile");
+                error_log("[Edge-TTS] Command: $command");
+            } else {
+                // For short text, use base64 encoding
+                $textBase64 = base64_encode($text);
+                $command = sprintf(
+                    '%s %s --base64 %s %s %s %s 2>&1',
+                    escapeshellcmd($this->pythonPath),
+                    escapeshellarg($this->scriptPath),
+                    escapeshellarg($textBase64),
+                    escapeshellarg($outputPath),
+                    escapeshellarg($voice),
+                    escapeshellarg($speed)
+                );
+            }
             
             // Log for debugging
             error_log("[Edge-TTS] Python path: " . $this->pythonPath);
             error_log("[Edge-TTS] Script path: " . $this->scriptPath);
-            error_log("[Edge-TTS] Text length: " . strlen($text));
             error_log("[Edge-TTS] Voice: $voice");
             error_log("[Edge-TTS] Output: $outputPath");
-            error_log("[Edge-TTS] Command: $command");
             
             // Execute Python script
             $output = [];
             $returnCode = 0;
             exec($command, $output, $returnCode);
+            
+            // Cleanup temp file if used
+            if ($textFile && file_exists($textFile)) {
+                unlink($textFile);
+                error_log("[Edge-TTS] Cleaned up temp file: $textFile");
+            }
             
             error_log("[Edge-TTS] Return code: $returnCode");
             error_log("[Edge-TTS] Output lines: " . count($output));
@@ -276,7 +314,7 @@ class EdgeTTSService {
                 error_log("Edge-TTS: No JSON output. Full output: " . implode("\n", $output));
                 return [
                     'success' => false,
-                    'error' => 'No response from Edge-TTS script'
+                    'error' => 'No response from Edge-TTS script. Please try again.'
                 ];
             }
             
@@ -300,6 +338,10 @@ class EdgeTTSService {
             }
             
         } catch (Exception $e) {
+            // Cleanup temp file on error
+            if (isset($textFile) && $textFile && file_exists($textFile)) {
+                unlink($textFile);
+            }
             error_log("Edge-TTS Exception: " . $e->getMessage());
             return [
                 'success' => false,

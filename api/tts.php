@@ -7,6 +7,37 @@
  * - Google TTS / gTTS (Free - backup)
  */
 
+// Disable output buffering to prevent HTML errors
+ob_start();
+
+// Error handler to return JSON instead of HTML
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    ob_clean();
+    header('Content-Type: application/json');
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Server error occurred',
+        'code' => 'PHP_ERROR',
+        'details' => $errstr
+    ]);
+    exit;
+});
+
+// Exception handler
+set_exception_handler(function($e) {
+    ob_clean();
+    header('Content-Type: application/json');
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Server exception occurred',
+        'code' => 'PHP_EXCEPTION',
+        'details' => $e->getMessage()
+    ]);
+    exit;
+});
+
 session_start();
 
 // CORS headers for browser compatibility
@@ -182,11 +213,21 @@ function handleConvert($dataModel, $azureService, $edgeService, $gttsService, $u
     } else {
         // Use Edge TTS (Free - high quality) - DEFAULT
         $engine = 'edge-tts';
+        $edgeError = null;
+        $gttsError = null;
+        
+        error_log("[TTS] Starting Edge-TTS conversion for $textLength chars");
+        $startTime = microtime(true);
+        
         $result = $edgeService->textToSpeech($text, $cleanVoice, $speed);
+        
+        $endTime = microtime(true);
+        error_log("[TTS] Edge-TTS took " . round($endTime - $startTime, 2) . " seconds");
         
         // FALLBACK: If Edge-TTS fails, try gTTS for Vietnamese
         if (!$result['success']) {
-            error_log("[TTS] Edge-TTS failed: " . ($result['error'] ?? 'Unknown error'));
+            $edgeError = $result['error'] ?? 'Unknown error';
+            error_log("[TTS] Edge-TTS failed: " . $edgeError);
             error_log("[TTS] Attempting fallback to gTTS...");
             
             // Map Edge voice to gTTS language
@@ -208,13 +249,19 @@ function handleConvert($dataModel, $azureService, $edgeService, $gttsService, $u
                 $engine = 'gtts-fallback';
                 error_log("[TTS] Fallback to gTTS successful");
             } else {
+                $gttsError = $result['error'] ?? 'Unknown error';
+                error_log("[TTS] gTTS also failed: " . $gttsError);
+                
                 http_response_code(500);
                 echo json_encode([
                     'success' => false,
-                    'error' => 'Không thể chuyển đổi văn bản. Edge-TTS và gTTS đều thất bại.',
+                    'error' => 'Không thể chuyển đổi văn bản. Vui lòng thử lại sau.',
                     'code' => 'TTS_FAILED',
-                    'edge_error' => $result['error'] ?? 'Unknown error',
-                    'gtts_error' => $result['error'] ?? 'Unknown error'
+                    'details' => [
+                        'edge_error' => $edgeError,
+                        'gtts_error' => $gttsError,
+                        'text_length' => $textLength
+                    ]
                 ]);
                 return;
             }
@@ -324,3 +371,6 @@ function handleTestConnection($azureService, $edgeService, $gttsService, $engine
         ]);
     }
 }
+
+// Flush output buffer
+ob_end_flush();

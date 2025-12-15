@@ -88,56 +88,11 @@ class QuickAccessCards {
     }
 
     // Translation Card
+    // NOTE: Translation is now handled in dashboard.php inline script to avoid duplicate handlers
+    // This method is kept empty to prevent double event binding
     initTranslationCard() {
-        const translateBtn = document.getElementById('translate-btn');
-        const textArea = document.getElementById('translate-text');
-        const sourceLang = document.getElementById('source-lang');
-        const targetLang = document.getElementById('target-lang');
-        const resultDiv = document.getElementById('translate-result');
-        const translatedText = document.getElementById('translated-text');
-
-        console.log('[Translate] Init Translation Card', { translateBtn, textArea, targetLang, resultDiv, translatedText });
-
-        if (translateBtn) {
-            translateBtn.addEventListener('click', async () => {
-                console.log('[Translate] Button clicked');
-                const text = textArea.value.trim();
-                const target = targetLang.value;
-
-                console.log('[Translate] Input values:', { textLength: text.length, target });
-
-                if (!text) {
-                    showToast('Vui lòng nhập văn bản', 'error');
-                    return;
-                }
-
-                setLoading(translateBtn, true);
-                try {
-                    console.log('[Translate] Sending API request...');
-                    const response = await apiRequest(`${API_BASE}/translate.php?action=translate`, {
-                        method: 'POST',
-                        body: JSON.stringify({ text, targetLang: target })
-                    });
-
-                    console.log('[Translate] API response:', response);
-
-                    if (response.success && response.data.translated_text) {
-                        translatedText.textContent = response.data.translated_text;
-                        resultDiv.classList.remove('hidden');
-                        showToast('Dịch thành công', 'success');
-                        console.log('[Translate] Translation displayed successfully');
-                    } else {
-                        console.error('[Translate] Invalid response:', response);
-                        showToast('Phản hồi không hợp lệ', 'error');
-                    }
-                } catch (error) {
-                    console.error('[Translate] Error:', error);
-                    showToast('Không thể dịch văn bản: ' + error.message, 'error');
-                } finally {
-                    setLoading(translateBtn, false);
-                }
-            });
-        }
+        console.log('[Translate] initTranslationCard called but disabled - using dashboard.php inline script instead');
+        // All translation functionality moved to dashboard.php to prevent duplicate handlers
     }
 
     // File Management Card

@@ -47,7 +47,8 @@ async def convert_text_to_speech(text, output_file, voice='vi-VN-HoaiMyNeural', 
         if not text or not text.strip():
             return {"success": False, "error": "Text is empty"}
         
-        if len(text) > 15000:
+        text_length = len(text)
+        if text_length > 15000:
             return {"success": False, "error": "Text too long (max 15000 chars)"}
         
         # Create output directory if not exists
@@ -59,19 +60,27 @@ async def convert_text_to_speech(text, output_file, voice='vi-VN-HoaiMyNeural', 
         if not rate or rate == '1.0' or rate == '1':
             rate = '+0%'
         
+        # Calculate timeout based on text length (longer text needs more time)
+        # Estimate: ~1 second per 50 characters + 30s buffer
+        timeout_seconds = max(60, (text_length // 50) + 60)
+        
         # Create TTS communicator with error handling
         try:
             communicate = edge_tts.Communicate(text, voice, rate=rate)
         except Exception as comm_error:
             return {"success": False, "error": f"Failed to create communicator: {str(comm_error)}"}
         
-        # Save to file with timeout
+        # Save to file with dynamic timeout
         try:
-            await asyncio.wait_for(communicate.save(output_file), timeout=60.0)
+            await asyncio.wait_for(communicate.save(output_file), timeout=float(timeout_seconds))
         except asyncio.TimeoutError:
-            return {"success": False, "error": "Conversion timeout (60s)"}
+            return {"success": False, "error": f"Conversion timeout ({timeout_seconds}s) for {text_length} chars"}
         except Exception as save_error:
-            return {"success": False, "error": f"Failed to save audio: {str(save_error)}"}
+            error_msg = str(save_error)
+            # Check for common errors
+            if "No audio was received" in error_msg:
+                return {"success": False, "error": "Edge-TTS service unavailable. Please try again."}
+            return {"success": False, "error": f"Failed to save audio: {error_msg}"}
         
         # Verify file was created and has content
         if os.path.exists(output_file):
@@ -81,6 +90,7 @@ async def convert_text_to_speech(text, output_file, voice='vi-VN-HoaiMyNeural', 
                     "success": True,
                     "file_path": output_file,
                     "file_size": file_size,
+                    "text_length": text_length,
                     "voice": voice,
                     "rate": rate,
                     "engine": "edge-tts"
@@ -134,7 +144,7 @@ def main():
     if len(sys.argv) < 3:
         print(json.dumps({
             "success": False,
-            "error": "Usage: python edge_tts_convert.py [--base64] 'text' 'output.mp3' [voice] [speed]"
+            "error": "Usage: python edge_tts_convert.py [--base64] 'text_or_@file' 'output.mp3' [voice] [speed]"
         }))
         sys.exit(1)
     
@@ -142,26 +152,27 @@ def main():
     output_file = sys.argv[2]
     voice = sys.argv[3] if len(sys.argv) > 3 else 'vi-VN-HoaiMyNeural'
     
+    # Read text from file if starts with @
+    if text_input.startswith('@'):
+        text_file = text_input[1:]
+        try:
+            with open(text_file, 'r', encoding='utf-8') as f:
+                text = f.read()
+            print(f"[Edge-TTS] Read {len(text)} chars from file: {text_file}", file=sys.stderr)
+        except Exception as e:
+            print(json.dumps({
+                "success": False,
+                "error": f"Failed to read text file: {str(e)}"
+            }))
+            sys.exit(1)
     # Decode base64 if flag is set
-    if use_base64:
+    elif use_base64:
         try:
             text = base64.b64decode(text_input).decode('utf-8')
         except Exception as e:
             print(json.dumps({
                 "success": False,
                 "error": f"Failed to decode base64: {str(e)}"
-            }))
-            sys.exit(1)
-    # Check if text is a file reference (starts with @)
-    elif text_input.startswith('@'):
-        text_file = text_input[1:]
-        try:
-            with open(text_file, 'r', encoding='utf-8') as f:
-                text = f.read()
-        except Exception as e:
-            print(json.dumps({
-                "success": False,
-                "error": f"Failed to read text file: {str(e)}"
             }))
             sys.exit(1)
     else:
