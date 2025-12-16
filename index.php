@@ -21,6 +21,12 @@ require_once __DIR__ . '/includes/functions.php';
 // Get page from URL
 $page = $_GET['page'] ?? 'home';
 
+// Handle share/code URLs
+if (strpos($page, 'share/') === 0) {
+    $_GET['code'] = substr($page, 6); // Extract code after 'share/'
+    $page = 'share';
+}
+
 // Route to appropriate view
 switch ($page) {
     // Public pages
@@ -82,6 +88,20 @@ switch ($page) {
     
     case 'admin-config':
         include __DIR__ . '/views/admin/config.php';
+        break;
+    
+    case 'admin-shares':
+        include __DIR__ . '/views/admin/shares.php';
+        break;
+    
+    // Share pages
+    case 'share':
+        $_GET['code'] = $_GET['code'] ?? '';
+        include __DIR__ . '/views/share.php';
+        break;
+    
+    case 'explore':
+        include __DIR__ . '/views/explore.php';
         break;
     
     // 404 - Not found

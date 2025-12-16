@@ -255,13 +255,23 @@ class RecentActivity {
                     </audio>
                 </td>
                 <td class="px-4 py-4">
-                    <button 
-                        onclick="deleteHistoryItem(${activity.id}, 'tts')" 
-                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition"
-                        title="Xóa"
-                    >
-                        Xóa
-                    </button>
+                    <div class="flex gap-2">
+                        <button 
+                            onclick="openShareModal(${activity.id})"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition"
+                            title="Chia sẻ"
+                            data-audio-text="${escapeHtml(truncateText(activity.text || '', 50))}"
+                        >
+                            📤
+                        </button>
+                        <button 
+                            onclick="deleteHistoryItem(${activity.id}, 'tts')" 
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm transition"
+                            title="Xóa"
+                        >
+                            🗑️
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -1325,4 +1335,505 @@ if (originalLoadActivities) {
             }
         }, 500);
     };
+}
+
+
+// ==================== AUDIO SHARING FUNCTIONS ====================
+
+let shareModalAudioId = null;
+let shareCategories = [];
+
+/**
+ * Open share modal
+ */
+window.openShareModal = async function(audioId, audioText = '') {
+    shareModalAudioId = audioId;
+    
+    // If audioText not provided, try to get from button's data attribute
+    if (!audioText) {
+        const btn = document.querySelector(`button[onclick="openShareModal(${audioId})"]`);
+        if (btn && btn.dataset.audioText) {
+            audioText = btn.dataset.audioText;
+        }
+    }
+    
+    // Load categories if not loaded
+    if (shareCategories.length === 0) {
+        await loadShareCategories();
+    }
+    
+    // Create modal if not exists
+    let modal = document.getElementById('share-modal');
+    if (!modal) {
+        modal = createShareModal();
+        document.body.appendChild(modal);
+    }
+    
+    // Reset form
+    document.getElementById('share-title').value = audioText || '';
+    document.getElementById('share-description').value = '';
+    document.getElementById('share-type').value = 'link';
+    toggleShareType('link');
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+/**
+ * Close share modal
+ */
+window.closeShareModal = function() {
+    const modal = document.getElementById('share-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    shareModalAudioId = null;
+}
+
+/**
+ * Create share modal HTML
+ */
+function createShareModal() {
+    const modal = document.createElement('div');
+    modal.id = 'share-modal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50';
+    modal.onclick = function(e) {
+        if (e.target === modal) closeShareModal();
+    };
+    
+    const categoryOptions = shareCategories.map(cat => 
+        `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`
+    ).join('');
+    
+    modal.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">📤 Chia sẻ Audio</h3>
+                    <button onclick="closeShareModal()" class="text-white/80 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- Share Type Selection -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Loại chia sẻ</label>
+                    <select id="share-type" onchange="toggleShareType(this.value)" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="link">🔗 Tạo link chia sẻ</option>
+                        <option value="public">🌐 Chia sẻ công khai (cần duyệt)</option>
+                    </select>
+                </div>
+                
+                <!-- Title -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tiêu đề</label>
+                    <input type="text" id="share-title" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập tiêu đề...">
+                </div>
+                
+                <!-- Public share fields -->
+                <div id="public-share-fields" class="hidden">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
+                        <select id="share-category" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            ${categoryOptions}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả (tùy chọn)</label>
+                        <textarea id="share-description" rows="2" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Mô tả ngắn về audio..."></textarea>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <p class="text-sm text-yellow-800">⚠️ Yêu cầu chia sẻ công khai sẽ được Admin xem xét trước khi hiển thị.</p>
+                    </div>
+                </div>
+                
+                <!-- Share Link Result -->
+                <div id="share-link-result" class="hidden mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Link chia sẻ</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-link-url" readonly class="flex-1 border border-gray-300 rounded-lg px-4 py-2 bg-gray-50">
+                        <button onclick="copyShareLink()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex gap-3">
+                    <button onclick="closeShareModal()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Hủy
+                    </button>
+                    <button id="share-submit-btn" onclick="submitShare()" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                        Chia sẻ
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return modal;
+}
+
+/**
+ * Toggle share type fields
+ */
+window.toggleShareType = function(type) {
+    const publicFields = document.getElementById('public-share-fields');
+    const linkResult = document.getElementById('share-link-result');
+    const submitBtn = document.getElementById('share-submit-btn');
+    
+    if (type === 'public') {
+        publicFields.classList.remove('hidden');
+        submitBtn.textContent = 'Gửi yêu cầu';
+    } else {
+        publicFields.classList.add('hidden');
+        submitBtn.textContent = 'Tạo link';
+    }
+    
+    linkResult.classList.add('hidden');
+}
+
+/**
+ * Load share categories
+ */
+async function loadShareCategories() {
+    try {
+        const response = await apiRequest(`${API_BASE}/share.php?action=categories`);
+        if (response.success && response.data.categories) {
+            shareCategories = response.data.categories;
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+/**
+ * Submit share request
+ */
+window.submitShare = async function() {
+    if (!shareModalAudioId) return;
+    
+    const shareType = document.getElementById('share-type').value;
+    const title = document.getElementById('share-title').value.trim();
+    
+    if (!title) {
+        showToast('Vui lòng nhập tiêu đề', 'error');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('share-submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang xử lý...';
+    
+    try {
+        if (shareType === 'link') {
+            // Create share link
+            const response = await apiRequest(`${API_BASE}/share.php?action=create-link`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    audio_id: shareModalAudioId,
+                    title: title
+                })
+            });
+            
+            if (response.success) {
+                document.getElementById('share-link-url').value = response.share_url;
+                document.getElementById('share-link-result').classList.remove('hidden');
+                submitBtn.textContent = 'Đã tạo link!';
+                showToast('Đã tạo link chia sẻ!', 'success');
+            } else {
+                showToast(response.error || 'Không thể tạo link', 'error');
+                submitBtn.textContent = 'Tạo link';
+            }
+        } else {
+            // Request public share
+            const categoryId = document.getElementById('share-category').value;
+            const description = document.getElementById('share-description').value.trim();
+            
+            const response = await apiRequest(`${API_BASE}/share.php?action=request-public`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    audio_id: shareModalAudioId,
+                    category_id: categoryId,
+                    title: title,
+                    description: description
+                })
+            });
+            
+            if (response.success) {
+                showToast('Đã gửi yêu cầu chia sẻ công khai!', 'success');
+                closeShareModal();
+            } else {
+                showToast(response.error || 'Không thể gửi yêu cầu', 'error');
+                submitBtn.textContent = 'Gửi yêu cầu';
+            }
+        }
+    } catch (error) {
+        console.error('Share error:', error);
+        showToast('Lỗi kết nối', 'error');
+        submitBtn.textContent = shareType === 'link' ? 'Tạo link' : 'Gửi yêu cầu';
+    }
+    
+    submitBtn.disabled = false;
+}
+
+/**
+ * Copy share link to clipboard
+ */
+window.copyShareLink = async function() {
+    const linkInput = document.getElementById('share-link-url');
+    try {
+        await navigator.clipboard.writeText(linkInput.value);
+        showToast('Đã copy link!', 'success');
+    } catch (error) {
+        // Fallback
+        linkInput.select();
+        document.execCommand('copy');
+        showToast('Đã copy link!', 'success');
+    }
+}
+
+
+// ==================== MY SHARES TAB FUNCTIONS ====================
+
+let currentShareTab = 'link';
+
+/**
+ * Load my shares
+ */
+window.loadMyShares = async function(type = 'link') {
+    currentShareTab = type;
+    
+    // Update tab styles
+    document.querySelectorAll('.share-tab').forEach(tab => {
+        tab.classList.remove('text-blue-600', 'border-blue-500');
+        tab.classList.add('text-gray-600', 'border-transparent');
+    });
+    
+    const activeTab = document.getElementById(`share-tab-${type}`);
+    if (activeTab) {
+        activeTab.classList.remove('text-gray-600', 'border-transparent');
+        activeTab.classList.add('text-blue-600', 'border-blue-500');
+    }
+    
+    const container = document.getElementById('my-shares-container');
+    container.innerHTML = `
+        <div class="text-center py-12">
+            <div class="spinner mx-auto mb-4"></div>
+            <p class="text-gray-500">Đang tải...</p>
+        </div>
+    `;
+    
+    try {
+        const response = await apiRequest(`${API_BASE}/share.php?action=my-shares`);
+        
+        if (response.success && response.data) {
+            const items = type === 'link' ? response.data.link_shares : response.data.public_shares;
+            
+            if (!items || items.length === 0) {
+                container.innerHTML = renderEmptyShareState(type);
+            } else {
+                container.innerHTML = items.map(item => 
+                    type === 'link' ? renderLinkShareItem(item) : renderPublicShareItem(item)
+                ).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading shares:', error);
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <p class="text-red-500">⚠️ Không thể tải dữ liệu</p>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Render link share item
+ */
+function renderLinkShareItem(item) {
+    const truncatedText = item.text.length > 100 ? item.text.substring(0, 100) + '...' : item.text;
+    const createdAt = new Date(item.created_at).toLocaleString('vi-VN');
+    
+    return `
+        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-900 mb-1">${escapeHtml(item.title || 'Không có tiêu đề')}</h3>
+                    <p class="text-sm text-gray-500">📅 ${createdAt} • 👁️ ${item.views} lượt xem</p>
+                </div>
+                <button onclick="deleteLinkShare(${item.id})" class="text-red-500 hover:text-red-700 transition" title="Xóa">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                <p class="text-sm text-gray-700">${escapeHtml(truncatedText)}</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <input type="text" readonly value="${item.share_url}" class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 bg-gray-50">
+                <button onclick="copyToClipboard('${item.share_url}')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm">
+                    Copy
+                </button>
+                <a href="${item.share_url}" target="_blank" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">
+                    Xem
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Render public share item
+ */
+function renderPublicShareItem(item) {
+    const truncatedText = item.text.length > 100 ? item.text.substring(0, 100) + '...' : item.text;
+    const createdAt = new Date(item.created_at).toLocaleString('vi-VN');
+    
+    const statusBadge = {
+        'pending': '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">⏳ Chờ duyệt</span>',
+        'approved': '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">✅ Đã duyệt</span>',
+        'rejected': '<span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">❌ Từ chối</span>'
+    };
+    
+    let actions = '';
+    if (item.status === 'pending') {
+        actions = `
+            <button onclick="cancelPublicShare(${item.id})" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
+                Hủy yêu cầu
+            </button>
+        `;
+    }
+    
+    return `
+        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="font-bold text-gray-900">${escapeHtml(item.title)}</h3>
+                        ${statusBadge[item.status]}
+                    </div>
+                    <p class="text-sm text-gray-500">📁 ${escapeHtml(item.category_name)} • 📅 ${createdAt}</p>
+                </div>
+            </div>
+            
+            ${item.description ? `<p class="text-gray-600 text-sm mb-3">${escapeHtml(item.description)}</p>` : ''}
+            
+            <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                <p class="text-sm text-gray-700">${escapeHtml(truncatedText)}</p>
+            </div>
+            
+            ${item.admin_note ? `
+                <div class="bg-red-50 p-3 rounded-lg mb-4">
+                    <p class="text-sm text-red-700"><strong>Lý do từ chối:</strong> ${escapeHtml(item.admin_note)}</p>
+                </div>
+            ` : ''}
+            
+            <div class="flex items-center justify-between">
+                <audio controls class="h-10">
+                    <source src="${item.audio_url}" type="audio/mpeg">
+                </audio>
+                <div class="flex gap-2">
+                    ${actions}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Render empty state for shares
+ */
+function renderEmptyShareState(type) {
+    const messages = {
+        'link': {
+            icon: '🔗',
+            title: 'Chưa có link chia sẻ nào',
+            desc: 'Tạo link chia sẻ từ lịch sử audio để chia sẻ với bạn bè'
+        },
+        'public': {
+            icon: '🌐',
+            title: 'Chưa có yêu cầu chia sẻ công khai nào',
+            desc: 'Gửi yêu cầu chia sẻ công khai để audio của bạn xuất hiện trên trang Khám phá'
+        }
+    };
+    
+    const msg = messages[type];
+    
+    return `
+        <div class="text-center py-16">
+            <div class="text-6xl mb-4">${msg.icon}</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">${msg.title}</h3>
+            <p class="text-gray-500">${msg.desc}</p>
+        </div>
+    `;
+}
+
+/**
+ * Delete link share
+ */
+window.deleteLinkShare = async function(id) {
+    if (!confirm('Bạn có chắc muốn xóa link chia sẻ này?')) return;
+    
+    try {
+        const response = await apiRequest(`${API_BASE}/share.php?action=delete-link`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.success) {
+            showToast('Đã xóa link chia sẻ', 'success');
+            loadMyShares('link');
+        } else {
+            showToast(response.error || 'Không thể xóa', 'error');
+        }
+    } catch (error) {
+        showToast('Lỗi kết nối', 'error');
+    }
+}
+
+/**
+ * Cancel public share request
+ */
+window.cancelPublicShare = async function(id) {
+    if (!confirm('Bạn có chắc muốn hủy yêu cầu này?')) return;
+    
+    try {
+        const response = await apiRequest(`${API_BASE}/share.php?action=cancel-request`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.success) {
+            showToast('Đã hủy yêu cầu', 'success');
+            loadMyShares('public');
+        } else {
+            showToast(response.error || 'Không thể hủy', 'error');
+        }
+    } catch (error) {
+        showToast('Lỗi kết nối', 'error');
+    }
+}
+
+/**
+ * Copy text to clipboard
+ */
+window.copyToClipboard = async function(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('Đã copy!', 'success');
+    } catch (error) {
+        showToast('Không thể copy', 'error');
+    }
 }

@@ -45,80 +45,77 @@ require_once __DIR__ . '/../includes/functions.php';
 <div class="flex min-h-screen bg-gray-50">
     <!-- Sidebar -->
     <aside class="w-72 bg-white border-r border-gray-200 shadow-lg flex flex-col fixed h-full z-50">
-        <div class="p-8 flex-grow">
+        <div class="p-5 flex-grow overflow-y-auto">
             <!-- Logo -->
-            <div class="mb-8">
+            <div class="mb-5">
                 <a href="<?= BASE_URL ?>/dashboard" class="flex items-center no-underline group">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                             <polyline points="14,2 14,8 20,8" />
                         </svg>
                     </div>
-                    <div class="ml-4">
+                    <div class="ml-3">
                         <span class="block text-2xl font-bold text-gray-800">DocReader</span>
                         <span class="block text-sm text-blue-600 font-semibold -mt-1">AI Studio</span>
                     </div>
                 </a>
             </div>
 
-            <div class="h-px bg-gray-200 mb-8"></div>
+            <div class="h-px bg-gray-200 mb-5"></div>
 
             <!-- Menu -->
-            <nav class="space-y-3">
-                <button onclick="switchTab('tts')" id="sidebar-tts" class="sidebar-link flex items-center w-full text-left px-5 py-4 rounded-xl font-medium transition-all duration-200 bg-blue-500 text-white shadow-lg">
-                    <div class="p-2 rounded-lg mr-4 bg-white/20">
+            <nav class="space-y-2">
+                <button onclick="switchTab('tts')" id="sidebar-tts" class="sidebar-link flex items-center w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 bg-blue-500 text-white shadow-lg">
+                    <div class="p-2 rounded-lg mr-3 bg-white/20">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-base">Chuyển văn bản</div>
-                        <div class="text-xs opacity-75">Text to Speech</div>
-                    </div>
+                    <span>Chuyển văn bản</span>
                 </button>
 
-                <button onclick="switchTab('summarize')" id="sidebar-summarize" class="sidebar-link flex items-center w-full text-left px-5 py-4 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-green-50 hover:text-green-700">
-                    <div class="p-2 rounded-lg mr-4 bg-green-100">
+                <button onclick="switchTab('summarize')" id="sidebar-summarize" class="sidebar-link flex items-center w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-green-50 hover:text-green-700">
+                    <div class="p-2 rounded-lg mr-3 bg-green-100">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-base">Tóm tắt</div>
-                        <div class="text-xs opacity-75 text-gray-400">Summarize</div>
-                    </div>
+                    <span>Tóm tắt</span>
                 </button>
 
-                <button onclick="switchTab('translate')" id="sidebar-translate" class="sidebar-link flex items-center w-full text-left px-5 py-4 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-purple-50 hover:text-purple-700">
-                    <div class="p-2 rounded-lg mr-4 bg-purple-100">
+                <button onclick="switchTab('translate')" id="sidebar-translate" class="sidebar-link flex items-center w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-purple-50 hover:text-purple-700">
+                    <div class="p-2 rounded-lg mr-3 bg-purple-100">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-base">Dịch thuật</div>
-                        <div class="text-xs opacity-75 text-gray-400">Translation</div>
-                    </div>
+                    <span>Dịch thuật</span>
                 </button>
 
-                <button onclick="switchTab('history')" id="sidebar-history" class="sidebar-link flex items-center w-full text-left px-5 py-4 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-orange-50 hover:text-orange-700">
-                    <div class="p-2 rounded-lg mr-4 bg-orange-100">
+                <button onclick="switchTab('history')" id="sidebar-history" class="sidebar-link flex items-center w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-orange-50 hover:text-orange-700">
+                    <div class="p-2 rounded-lg mr-3 bg-orange-100">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <div>
-                        <div class="text-base">Lịch sử</div>
-                        <div class="text-xs opacity-75 text-gray-400">History</div>
+                    <span>Lịch sử</span>
+                </button>
+
+                <button onclick="switchTab('myshares')" id="sidebar-myshares" class="sidebar-link flex items-center w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 text-gray-700 hover:bg-pink-50 hover:text-pink-700">
+                    <div class="p-2 rounded-lg mr-3 bg-pink-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
                     </div>
+                    <span>Chia sẻ của tôi</span>
                 </button>
             </nav>
         </div>
 
         <!-- User Profile Section -->
-        <div class="p-6 border-t border-gray-200">
-            <div class="mb-3 p-3 rounded-xl bg-gray-50 relative">
+        <div class="p-4 border-t border-gray-200 flex-shrink-0">
+            <div class="mb-3 p-2 rounded-lg bg-gray-50 relative">
                 <button onclick="toggleUserMenu()" class="flex items-center space-x-3 w-full text-left hover:bg-gray-100 rounded-lg p-2 transition">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                         <?= strtoupper(substr($currentUser['email'], 0, 1)) ?>
@@ -127,7 +124,6 @@ require_once __DIR__ . '/../includes/functions.php';
                         <div class="font-semibold text-gray-800 truncate text-sm">
                             <?= htmlspecialchars(explode('@', $currentUser['email'])[0]) ?>
                         </div>
-                        <div class="text-xs text-gray-500">DocReader AI Studio</div>
                     </div>
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -150,7 +146,7 @@ require_once __DIR__ . '/../includes/functions.php';
                     </a>
                 </div>
             </div>
-            <button onclick="logout()" class="w-full py-3 px-4 text-white bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:from-red-600 hover:to-red-700 font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+            <button onclick="logout()" class="w-full py-2.5 px-4 text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg hover:from-red-600 hover:to-red-700 font-medium transition-all duration-200 flex items-center justify-center">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
@@ -420,6 +416,29 @@ require_once __DIR__ . '/../includes/functions.php';
                             </table>
                         </div>
                     </div>
+
+                    <!-- My Shares Tab -->
+                    <div id="content-myshares" class="tab-content hidden">
+                        <h2 class="text-2xl font-bold mb-6">📤 Chia sẻ của tôi</h2>
+                        
+                        <!-- Tabs for share types -->
+                        <div class="flex gap-2 mb-6 border-b border-gray-200">
+                            <button onclick="loadMyShares('link')" id="share-tab-link" class="share-tab px-6 py-3 font-medium text-blue-600 border-b-2 border-blue-500">
+                                🔗 Link chia sẻ
+                            </button>
+                            <button onclick="loadMyShares('public')" id="share-tab-public" class="share-tab px-6 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900">
+                                🌐 Chia sẻ công khai
+                            </button>
+                        </div>
+                        
+                        <!-- Shares Container -->
+                        <div id="my-shares-container" class="space-y-4">
+                            <div class="text-center py-12">
+                                <div class="spinner mx-auto mb-4"></div>
+                                <p class="text-gray-500">Đang tải...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -449,7 +468,7 @@ function switchTab(tabName) {
     
     // Update sidebar links
     document.querySelectorAll('.sidebar-link').forEach(el => {
-        el.classList.remove('bg-blue-500', 'text-white', 'shadow-lg', 'bg-green-500', 'bg-purple-500', 'bg-orange-500');
+        el.classList.remove('bg-blue-500', 'text-white', 'shadow-lg', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500');
         el.classList.add('text-gray-700');
         const icon = el.querySelector('div:first-of-type');
         if (icon) {
@@ -474,9 +493,10 @@ function switchTab(tabName) {
             'tts': 'bg-blue-500',
             'summarize': 'bg-green-500',
             'translate': 'bg-purple-500',
-            'history': 'bg-orange-500'
+            'history': 'bg-orange-500',
+            'myshares': 'bg-pink-500'
         };
-        sidebarBtn.classList.add(colors[tabName], 'text-white', 'shadow-lg');
+        sidebarBtn.classList.add(colors[tabName] || 'bg-blue-500', 'text-white', 'shadow-lg');
         sidebarBtn.classList.remove('text-gray-700');
         const icon = sidebarBtn.querySelector('div:first-of-type');
         if (icon) {
@@ -493,6 +513,12 @@ function switchTab(tabName) {
         } else {
             console.error('[Tab] recentActivity is not defined!');
         }
+    }
+    
+    // Load my shares when switching to myshares tab
+    if (tabName === 'myshares') {
+        console.log('[Tab] Switching to myshares tab');
+        loadMyShares('link');
     }
     
     // Save position when switching AWAY from TTS tab

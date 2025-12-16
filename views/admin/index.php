@@ -63,6 +63,13 @@ require_once __DIR__ . '/../../includes/header.php';
                 </div>
             </a>
 
+            <a href="<?= BASE_URL ?>/admin-shares" class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition">
+                <span class="text-3xl">📤</span>
+                <div>
+                    <p class="font-medium text-gray-900">Quản lý chia sẻ</p>
+                    <p class="text-sm text-gray-500">Duyệt yêu cầu chia sẻ công khai</p>
+                </div>
+            </a>
             <a href="<?= BASE_URL ?>/admin-config" class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 transition">
                 <span class="text-3xl">⚙️</span>
                 <div>
