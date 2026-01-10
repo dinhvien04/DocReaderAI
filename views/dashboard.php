@@ -236,10 +236,10 @@ require_once __DIR__ . '/../includes/functions.php';
                                 </optgroup>
                             </select>
                         </div>
-                        <div>
+                        <!-- <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tốc độ: <span id="speed-display">1x</span></label>
                             <input id="speed-input" type="range" min="0" max="2" step="1" value="1" class="w-full">
-                        </div>
+                        </div> -->
                     </div>
                     <div class="flex gap-2">
                         <button id="convert-btn" class="flex-1 gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition">
@@ -419,15 +419,15 @@ require_once __DIR__ . '/../includes/functions.php';
 
                     <!-- My Shares Tab -->
                     <div id="content-myshares" class="tab-content hidden">
-                        <h2 class="text-2xl font-bold mb-6">📤 Chia sẻ của tôi</h2>
+                        <h2 class="text-2xl font-bold mb-6">Chia sẻ của tôi</h2>
                         
                         <!-- Tabs for share types -->
                         <div class="flex gap-2 mb-6 border-b border-gray-200">
                             <button onclick="loadMyShares('link')" id="share-tab-link" class="share-tab px-6 py-3 font-medium text-blue-600 border-b-2 border-blue-500">
-                                🔗 Link chia sẻ
+                                 Link chia sẻ
                             </button>
                             <button onclick="loadMyShares('public')" id="share-tab-public" class="share-tab px-6 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900">
-                                🌐 Chia sẻ công khai
+                                Chia sẻ công khai
                             </button>
                         </div>
                         
@@ -1295,7 +1295,7 @@ window.openShareModal = async function(audio) {
         if (data.success) {
             const categorySelect = document.getElementById('share-category');
             categorySelect.innerHTML = '<option value="">Chọn thể loại...</option>' +
-                data.data.map(cat => `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`).join('');
+                data.data.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
         }
     } catch (error) {
         console.error('Error loading categories:', error);

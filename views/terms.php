@@ -7,7 +7,7 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="container mx-auto px-4 max-w-4xl">
         <!-- Header -->
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">📋 Điều khoản dịch vụ</h1>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Điều khoản dịch vụ</h1>
             <p class="text-gray-600">Cập nhật lần cuối: <?= date('d/m/Y') ?></p>
         </div>
 

@@ -1,58 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+$pageTitle = 'DocReader AI Studio - Chuyển đổi văn bản thành giọng nói AI';
+require_once __DIR__ . '/../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DocReader AI Studio - Chuyển đổi văn bản thành giọng nói AI</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/assets/images/vie.png">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-    </style>
-</head>
-<body class="bg-white text-gray-900">
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-        <div class="container mx-auto px-4">
-            <div class="flex h-16 items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold">DocReader AI Studio</h2>
-                </div>
-                <nav class="hidden md:flex items-center gap-8">
-                    <a href="#features" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Tính năng</a>
-                    <a href="#applications" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Ứng dụng</a>
-                    <a href="<?= BASE_URL ?>/explore" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Khám phá</a>
-                    <a href="#cta" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Bắt đầu</a>
-                </nav>
-                <div class="flex items-center gap-2">
-                    <a href="./login" class="px-4 py-2 text-sm font-bold text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-                        Đăng nhập
-                    </a>
-                    <a href="./register" class="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
-                        Đăng ký miễn phí
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
 
     <!-- Hero Section -->
     <section class="py-20 sm:py-32">
@@ -99,7 +48,7 @@ require_once __DIR__ . '/../config/config.php';
         <div class="container mx-auto px-4">
             <div class="flex flex-col gap-12">
                 <div class="flex flex-col gap-3 text-center max-w-2xl mx-auto">
-                    <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">🎧 Audio từ cộng đồng</h2>
+                    <h2 class="text-3xl lg:text-4xl font-bold tracking-tight"> Audio từ cộng đồng</h2>
                     <p class="text-gray-600">Khám phá các audio được chia sẻ bởi người dùng khác</p>
                 </div>
                 
@@ -244,7 +193,7 @@ require_once __DIR__ . '/../config/config.php';
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-50 border-t border-gray-200">
+    <!-- <footer class="bg-gray-50 border-t border-gray-200">
         <div class="container mx-auto px-4 py-8">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
                 <div class="flex items-center gap-3">
@@ -260,7 +209,7 @@ require_once __DIR__ . '/../config/config.php';
                 </div>
             </div>
         </div>
-    </footer>
+    </footer> -->
     <script>
     // Load public audios for homepage
     async function loadPublicAudios() {
@@ -284,7 +233,7 @@ require_once __DIR__ . '/../config/config.php';
                             <div class="bg-gradient-to-r from-blue-400 to-purple-500 p-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white text-xl">
-                                        ${audio.category_icon}
+                                        🎵
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <h3 class="text-white font-bold text-sm truncate">${escapeHtml(truncatedTitle)}</h3>
@@ -352,7 +301,7 @@ require_once __DIR__ . '/../config/config.php';
                     <div class="flex justify-between items-start">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-3xl">
-                                ${audio.category_icon}
+                                🎵
                             </div>
                             <div>
                                 <h3 class="text-xl font-bold">${escapeHtml(audio.title)}</h3>
@@ -410,5 +359,4 @@ require_once __DIR__ . '/../config/config.php';
     
     document.addEventListener('DOMContentLoaded', loadPublicAudios);
     </script>
-</body>
-</html>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

@@ -68,6 +68,11 @@ try {
             handleReject($db, $input);
             break;
             
+        case 'admin-delete':
+            requireAdmin();
+            handleAdminDelete($db, $input);
+            break;
+            
         case 'categories':
             handleGetCategories($db);
             break;
@@ -336,7 +341,7 @@ function handleGetPublic($db) {
     $params[] = $offset;
     
     $stmt = $db->prepare("
-        SELECT sa.*, ah.text, ah.audio_url, ah.voice, ac.name as category_name, ac.icon as category_icon,
+        SELECT sa.*, ah.text, ah.audio_url, ah.voice, ac.name as category_name,
                u.email as author_email
         FROM shared_audios sa
         JOIN audio_history ah ON sa.audio_id = ah.id
@@ -475,6 +480,29 @@ function handleReject($db, $input) {
         echo json_encode(['success' => true, 'message' => 'Đã từ chối yêu cầu']);
     } else {
         echo json_encode(['success' => false, 'error' => 'Không thể từ chối yêu cầu này']);
+    }
+}
+
+/**
+ * Admin: Delete share (approved or rejected)
+ */
+function handleAdminDelete($db, $input) {
+    $shareId = (int)($input['id'] ?? 0);
+    
+    if (!$shareId) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'ID không hợp lệ']);
+        return;
+    }
+    
+    // Only allow deleting approved or rejected shares, not pending
+    $stmt = $db->prepare("DELETE FROM shared_audios WHERE id = ? AND status IN ('approved', 'rejected')");
+    $stmt->execute([$shareId]);
+    
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'message' => 'Đã xóa chia sẻ']);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Không thể xóa chia sẻ này (có thể đang ở trạng thái chờ duyệt)']);
     }
 }
 

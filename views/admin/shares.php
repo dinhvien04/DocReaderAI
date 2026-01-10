@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../includes/header.php';
 
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">📤 Quản lý chia sẻ công khai</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Quản lý chia sẻ công khai</h1>
         <a href="<?= BASE_URL ?>/admin" class="text-blue-600 hover:text-blue-800">← Quay lại Dashboard</a>
     </div>
 
@@ -17,13 +17,13 @@ require_once __DIR__ . '/../../includes/header.php';
             Tất cả
         </button>
         <button onclick="filterShares('pending')" id="filter-pending" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition">
-            ⏳ Chờ duyệt
+            Chờ duyệt
         </button>
         <button onclick="filterShares('approved')" id="filter-approved" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition">
-            ✅ Đã duyệt
+            Đã duyệt
         </button>
         <button onclick="filterShares('rejected')" id="filter-rejected" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition">
-            ❌ Từ chối
+            Từ chối
         </button>
     </div>
 
@@ -141,6 +141,18 @@ function renderShareItem(item) {
                 ❌ Từ chối
             </button>
         `;
+    } else if (item.status === 'approved') {
+        actions = `
+            <button onclick="deleteShare(${item.id})" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
+                🗑️ Xóa
+            </button>
+        `;
+    } else if (item.status === 'rejected') {
+        actions = `
+            <button onclick="deleteShare(${item.id})" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
+                🗑️ Xóa
+            </button>
+        `;
     }
 
     return `
@@ -171,7 +183,7 @@ function renderShareItem(item) {
             ` : ''}
             
             <div class="flex items-center justify-between">
-                <button onclick="previewAudio('${escapeHtml(item.title)}', '${escapeHtml(item.text.replace(/'/g, "\\'"))}', '${item.audio_url}')" 
+                <button onclick='previewAudio(${JSON.stringify(item.title)}, ${JSON.stringify(item.text)}, ${JSON.stringify(item.audio_url)})' 
                         class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm">
                     🎧 Nghe thử
                 </button>
@@ -252,6 +264,28 @@ async function confirmReject() {
         if (data.success) {
             showToast('Đã từ chối yêu cầu', 'success');
             closeRejectModal();
+            loadShares(currentFilter);
+        } else {
+            showToast(data.error || 'Lỗi', 'error');
+        }
+    } catch (error) {
+        showToast('Lỗi kết nối', 'error');
+    }
+}
+
+async function deleteShare(id) {
+    if (!confirm('Bạn có chắc muốn xóa chia sẻ này? Hành động này không thể hoàn tác!')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/share.php?action=admin-delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Đã xóa chia sẻ', 'success');
             loadShares(currentFilter);
         } else {
             showToast(data.error || 'Lỗi', 'error');

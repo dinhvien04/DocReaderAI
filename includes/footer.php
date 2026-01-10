@@ -28,9 +28,9 @@
                 <div>
                     <h3 class="text-xl font-bold mb-4">Liên hệ</h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li>📧 Email: support@docreader.com</li>
-                        <li>📱 Hotline: 1900 xxxx</li>
-                        <li>🏢 Địa chỉ: Hà Nội, Việt Nam</li>
+                        <li>Email: support@docreader.com</li>
+                        <li>Hotline: 1900 xxxx</li>
+                        <li>Địa chỉ: Hà Nội, Việt Nam</li>
                     </ul>
                 </div>
             </div>

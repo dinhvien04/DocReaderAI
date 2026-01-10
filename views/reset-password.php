@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/header.php';
         <!-- Header -->
         <div class="text-center">
             <h2 class="text-4xl font-bold text-gray-900 mb-2">
-                🔑 Đặt lại mật khẩu
+                Đặt lại mật khẩu
             </h2>
             <p class="text-gray-600">
                 Khôi phục quyền truy cập tài khoản của bạn

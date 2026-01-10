@@ -1404,7 +1404,7 @@ function createShareModal() {
     };
     
     const categoryOptions = shareCategories.map(cat => 
-        `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`
+        `<option value="${cat.id}">${cat.name}</option>`
     ).join('');
     
     modal.innerHTML = `
@@ -1425,8 +1425,8 @@ function createShareModal() {
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Loại chia sẻ</label>
                     <select id="share-type" onchange="toggleShareType(this.value)" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="link">🔗 Tạo link chia sẻ</option>
-                        <option value="public">🌐 Chia sẻ công khai (cần duyệt)</option>
+                        <option value="link"> Tạo link chia sẻ</option>
+                        <option value="public">Chia sẻ công khai (cần duyệt)</option>
                     </select>
                 </div>
                 
@@ -1668,7 +1668,7 @@ function renderLinkShareItem(item) {
             <div class="flex items-start justify-between mb-4">
                 <div class="flex-1">
                     <h3 class="font-bold text-gray-900 mb-1">${escapeHtml(item.title || 'Không có tiêu đề')}</h3>
-                    <p class="text-sm text-gray-500">📅 ${createdAt} • 👁️ ${item.views} lượt xem</p>
+                    <p class="text-sm text-gray-500">${createdAt} •  ${item.views} lượt xem</p>
                 </div>
                 <button onclick="deleteLinkShare(${item.id})" class="text-red-500 hover:text-red-700 transition" title="Xóa">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1724,7 +1724,7 @@ function renderPublicShareItem(item) {
                         <h3 class="font-bold text-gray-900">${escapeHtml(item.title)}</h3>
                         ${statusBadge[item.status]}
                     </div>
-                    <p class="text-sm text-gray-500">📁 ${escapeHtml(item.category_name)} • 📅 ${createdAt}</p>
+                    <p class="text-sm text-gray-500"> ${escapeHtml(item.category_name)} • ${createdAt}</p>
                 </div>
             </div>
             
@@ -1758,12 +1758,12 @@ function renderPublicShareItem(item) {
 function renderEmptyShareState(type) {
     const messages = {
         'link': {
-            icon: '🔗',
+            icon: '',
             title: 'Chưa có link chia sẻ nào',
             desc: 'Tạo link chia sẻ từ lịch sử audio để chia sẻ với bạn bè'
         },
         'public': {
-            icon: '🌐',
+            icon: '',
             title: 'Chưa có yêu cầu chia sẻ công khai nào',
             desc: 'Gửi yêu cầu chia sẻ công khai để audio của bạn xuất hiện trên trang Khám phá'
         }
